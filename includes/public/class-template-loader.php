@@ -30,6 +30,8 @@ class Template_Loader {
         add_action('wp_ajax_nopriv_institute_directory_load', array($this, 'handle_directory_load'));
         add_action('wp_ajax_institute_directory_filter', array($this, 'handle_directory_filter'));
         add_action('wp_ajax_nopriv_institute_directory_filter', array($this, 'handle_directory_filter'));
+        add_action('wp_ajax_institute_students_top_filter', array($this, 'handle_students_top_filter'));
+        add_action('wp_ajax_nopriv_institute_students_top_filter', array($this, 'handle_students_top_filter'));
     }
     
     /**
@@ -432,7 +434,8 @@ class Template_Loader {
      * Handle directory load AJAX
      */
     public function handle_directory_load() {
-        check_ajax_referer('institute_management_nonce', 'nonce');
+        // Don't check nonce for initial load to avoid issues
+        // check_ajax_referer('institute_management_nonce', 'nonce');
         
         $settings = get_option('institute_management_settings', array());
         $style = $settings['default_display_style'] ?? 'grid';
@@ -470,7 +473,8 @@ class Template_Loader {
      * Handle directory filter AJAX
      */
     public function handle_directory_filter() {
-        check_ajax_referer('institute_management_nonce', 'nonce');
+        // Don't check nonce for public directory access
+        // check_ajax_referer('institute_management_nonce', 'nonce');
         
         $type = sanitize_text_field($_POST['type'] ?? '');
         $class_dept = sanitize_text_field($_POST['class'] ?? '');
@@ -666,5 +670,313 @@ class Template_Loader {
         }
         
         echo '</div>';
+    }
+    
+    /**
+     * Handle students top filter AJAX request
+     */
+    public function handle_students_top_filter() {
+        // Don't check nonce for public access
+        // check_ajax_referer('institute_management_nonce', 'nonce');
+        
+        $class = sanitize_text_field($_POST['class'] ?? '');
+        $session = sanitize_text_field($_POST['session'] ?? '');
+        $search = sanitize_text_field($_POST['search'] ?? '');
+        
+        // Build query args
+        $args = array(
+            'post_type' => 'student',
+            'posts_per_page' => -1,
+            'post_status' => 'publish',
+            'orderby' => 'title',
+            'order' => 'ASC'
+        );
+        
+        // Add search query
+        if (!empty($search)) {
+            $args['s'] = $search;
+            
+            // Also search in meta fields
+            $args['meta_query'] = array(
+                'relation' => 'OR',
+                array(
+                    'key' => '_student_id',
+                    'value' => $search,
+                    'compare' => 'LIKE'
+                ),
+                array(
+                    'key' => '_student_phone',
+                    'value' => $search,
+                    'compare' => 'LIKE'
+                )
+            );
+        }
+        
+        $meta_query = array('relation' => 'AND');
+        $tax_query = array('relation' => 'AND');
+        
+        // Filter by class
+        if (!empty($class)) {
+            $tax_query[] = array(
+                'taxonomy' => 'student_class',
+                'field' => 'slug',
+                'terms' => $class
+            );
+        }
+        
+        // Filter by session
+        if (!empty($session)) {
+            $meta_query[] = array(
+                'key' => '_student_session',
+                'value' => $session,
+                'compare' => '='
+            );
+        }
+        
+        // Combine meta queries if we have both search and session
+        if (!empty($search) && !empty($session)) {
+            $args['meta_query'] = array(
+                'relation' => 'AND',
+                array(
+                    'relation' => 'OR',
+                    array(
+                        'key' => '_student_id',
+                        'value' => $search,
+                        'compare' => 'LIKE'
+                    ),
+                    array(
+                        'key' => '_student_phone',
+                        'value' => $search,
+                        'compare' => 'LIKE'
+                    )
+                ),
+                array(
+                    'key' => '_student_session',
+                    'value' => $session,
+                    'compare' => '='
+                )
+            );
+        } elseif (!empty($meta_query) && count($meta_query) > 1) {
+            $args['meta_query'] = $meta_query;
+        }
+        
+        if (!empty($tax_query) && count($tax_query) > 1) {
+            $args['tax_query'] = $tax_query;
+        }
+        
+        $students = get_posts($args);
+        
+        ob_start();
+        
+        if (!empty($students)) {
+            // Render grid view (hidden by default)
+            echo '<div class="institute-students-grid institute-grid institute-columns-3" style="display: none;">';
+            foreach ($students as $student) {
+                $this->render_student_card($student);
+            }
+            echo '</div>';
+            
+            // Render table view (visible by default)
+            echo '<div class="institute-students-table">';
+            echo '<div class="institute-table-wrapper">';
+            echo '<table class="institute-data-table">';
+            echo '<thead>';
+            echo '<tr>';
+            echo '<th class="institute-th-serial">' . __('S.No', 'institute-management') . '</th>';
+            echo '<th class="institute-th-photo">' . __('Photo', 'institute-management') . '</th>';
+            echo '<th class="institute-th-name">' . __('Name', 'institute-management') . '</th>';
+            echo '<th class="institute-th-id">' . __('Student ID', 'institute-management') . '</th>';
+            echo '<th class="institute-th-class">' . __('Class', 'institute-management') . '</th>';
+            echo '<th class="institute-th-batch">' . __('Batch', 'institute-management') . '</th>';
+            echo '<th class="institute-th-session">' . __('Session', 'institute-management') . '</th>';
+            echo '<th class="institute-th-mobile">' . __('Mobile', 'institute-management') . '</th>';
+            echo '<th class="institute-th-status">' . __('Status', 'institute-management') . '</th>';
+            echo '<th class="institute-th-actions">' . __('Actions', 'institute-management') . '</th>';
+            echo '</tr>';
+            echo '</thead>';
+            echo '<tbody>';
+            
+            $serial = 1;
+            foreach ($students as $student) {
+                $this->render_student_table_row($student, $serial++);
+            }
+            
+            echo '</tbody>';
+            echo '</table>';
+            echo '</div>';
+            echo '</div>';
+        } else {
+            echo '<div class="institute-no-results">';
+            echo '<div class="no-results-icon"><span class="dashicons dashicons-admin-users"></span></div>';
+            echo '<h3>' . __('No students found', 'institute-management') . '</h3>';
+            echo '<p>' . __('No students match the selected criteria.', 'institute-management') . '</p>';
+            echo '</div>';
+        }
+        
+        $html = ob_get_clean();
+        wp_send_json_success($html);
+    }
+    
+    /**
+     * Render student card for grid view
+     */
+    private function render_student_card($student) {
+        $student_id = get_post_meta($student->ID, '_student_id', true);
+        $status = get_post_meta($student->ID, '_student_status', true);
+        $role = get_post_meta($student->ID, '_student_role', true);
+        $session = get_post_meta($student->ID, '_student_session', true);
+        $branch = get_post_meta($student->ID, '_student_branch', true);
+        $classes = get_the_terms($student->ID, 'student_class');
+        $batches = get_the_terms($student->ID, 'student_batch');
+        
+        echo '<article class="institute-student-card" data-student-id="' . esc_attr($student_id) . '">';
+        
+        // Photo
+        echo '<div class="institute-card-photo">';
+        if (has_post_thumbnail($student->ID)) {
+            echo '<a href="' . get_permalink($student->ID) . '">';
+            echo get_the_post_thumbnail($student->ID, 'medium', array('class' => 'student-photo'));
+            echo '</a>';
+        } else {
+            echo '<div class="institute-default-avatar">';
+            echo '<span class="dashicons dashicons-admin-users"></span>';
+            echo '</div>';
+        }
+        
+        if ($status) {
+            echo '<span class="institute-status-badge institute-status-' . esc_attr($status) . '">';
+            echo esc_html(ucfirst($status));
+            echo '</span>';
+        }
+        echo '</div>';
+        
+        // Content
+        echo '<div class="institute-card-content">';
+        echo '<h3 class="institute-card-title">';
+        echo '<a href="' . get_permalink($student->ID) . '">' . esc_html($student->post_title) . '</a>';
+        echo '</h3>';
+        
+        if ($student_id) {
+            echo '<p class="institute-card-id"><strong>' . __('ID:', 'institute-management') . '</strong> <span>' . esc_html($student_id) . '</span></p>';
+        }
+        
+        if ($classes && !is_wp_error($classes)) {
+            $class_names = wp_list_pluck($classes, 'name');
+            echo '<p class="institute-card-class"><strong>' . __('Class:', 'institute-management') . '</strong> ' . esc_html(implode(', ', $class_names)) . '</p>';
+        }
+        
+        echo '<div class="institute-card-actions">';
+        echo '<a href="' . get_permalink($student->ID) . '" class="institute-btn institute-btn-primary">' . __('View Profile', 'institute-management') . '</a>';
+        echo '</div>';
+        echo '</div>';
+        
+        echo '</article>';
+    }
+    
+    /**
+     * Render student table row
+     */
+    private function render_student_table_row($student, $serial) {
+        $student_id = get_post_meta($student->ID, '_student_id', true);
+        $role = get_post_meta($student->ID, '_student_role', true);
+        $session = get_post_meta($student->ID, '_student_session', true);
+        $branch = get_post_meta($student->ID, '_student_branch', true);
+        $phone = get_post_meta($student->ID, '_student_phone', true);
+        $status = get_post_meta($student->ID, '_student_status', true);
+        $classes = get_the_terms($student->ID, 'student_class');
+        $batches = get_the_terms($student->ID, 'student_batch');
+        
+        echo '<tr class="institute-student-row" data-student-id="' . esc_attr($student_id) . '">';
+        
+        // Serial
+        echo '<td class="institute-td-serial">' . $serial . '</td>';
+        
+        // Photo
+        echo '<td class="institute-td-photo">';
+        if (has_post_thumbnail($student->ID)) {
+            echo '<div class="institute-table-photo">';
+            echo '<a href="' . get_permalink($student->ID) . '">';
+            echo get_the_post_thumbnail($student->ID, 'thumbnail', array('class' => 'student-table-photo'));
+            echo '</a>';
+            echo '</div>';
+        } else {
+            echo '<div class="institute-table-avatar">';
+            echo '<span class="dashicons dashicons-admin-users"></span>';
+            echo '</div>';
+        }
+        echo '</td>';
+        
+        // Name
+        echo '<td class="institute-td-name">';
+        echo '<div class="institute-name-cell">';
+        echo '<a href="' . get_permalink($student->ID) . '" class="institute-student-name">' . esc_html($student->post_title) . '</a>';
+        if ($role) {
+            echo '<span class="institute-student-role">' . esc_html($role) . '</span>';
+        }
+        echo '</div>';
+        echo '</td>';
+        
+        // Student ID
+        echo '<td class="institute-td-id">';
+        echo '<span class="institute-student-id">' . ($student_id ? esc_html($student_id) : '-') . '</span>';
+        echo '</td>';
+        
+        // Class
+        echo '<td class="institute-td-class">';
+        if ($classes && !is_wp_error($classes)) {
+            $class_names = wp_list_pluck($classes, 'name');
+            echo esc_html(implode(', ', $class_names));
+        } else {
+            echo '<span class="institute-no-data">-</span>';
+        }
+        echo '</td>';
+        
+        // Batch
+        echo '<td class="institute-td-batch">';
+        if ($batches && !is_wp_error($batches)) {
+            echo esc_html($batches[0]->name);
+        } else {
+            echo '<span class="institute-no-data">-</span>';
+        }
+        echo '</td>';
+        
+        // Session
+        echo '<td class="institute-td-session">';
+        echo $session ? esc_html($session) : '<span class="institute-no-data">-</span>';
+        echo '</td>';
+        
+        // Mobile
+        echo '<td class="institute-td-mobile">';
+        if ($phone) {
+            echo '<a href="tel:' . esc_attr($phone) . '" class="institute-phone-link">' . esc_html($phone) . '</a>';
+        } else {
+            echo '<span class="institute-no-data">-</span>';
+        }
+        echo '</td>';
+        
+        // Status
+        echo '<td class="institute-td-status">';
+        if ($status) {
+            echo '<span class="institute-status-badge institute-status-' . esc_attr($status) . '">' . esc_html(ucfirst($status)) . '</span>';
+        } else {
+            echo '<span class="institute-status-badge institute-status-active">' . __('Active', 'institute-management') . '</span>';
+        }
+        echo '</td>';
+        
+        // Actions
+        echo '<td class="institute-td-actions">';
+        echo '<div class="institute-table-actions">';
+        echo '<a href="' . get_permalink($student->ID) . '" class="institute-btn institute-btn-sm institute-btn-primary" title="' . __('View Profile', 'institute-management') . '">';
+        echo '<span class="dashicons dashicons-visibility"></span>';
+        echo '</a>';
+        if (current_user_can('edit_posts')) {
+            echo '<a href="' . get_edit_post_link($student->ID) . '" class="institute-btn institute-btn-sm institute-btn-secondary" title="' . __('Edit', 'institute-management') . '">';
+            echo '<span class="dashicons dashicons-edit"></span>';
+            echo '</a>';
+        }
+        echo '</div>';
+        echo '</td>';
+        
+        echo '</tr>';
     }
 } 

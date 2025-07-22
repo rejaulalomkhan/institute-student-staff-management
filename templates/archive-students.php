@@ -35,6 +35,8 @@ $enable_filters = $settings['enable_filters'] ?? true;
         </div>
     </div>
     
+
+    
     <?php if ($enable_search || $enable_filters): ?>
     <div class="institute-filters-section">
         <div class="container">
@@ -118,24 +120,82 @@ $enable_filters = $settings['enable_filters'] ?? true;
             
             <!-- Display Style Toggle -->
             <div class="institute-display-controls">
-                <div class="institute-view-toggle">
-                    <button type="button" class="view-toggle active" data-style="grid" title="<?php _e('Grid View', 'institute-management'); ?>">
-                        <span class="dashicons dashicons-grid-view"></span>
-                    </button>
-                    <button type="button" class="view-toggle" data-style="list" title="<?php _e('List View', 'institute-management'); ?>">
+                <div class="institute-view-toggle">                    
+                    <button type="button" class="view-toggle active" data-style="list" title="<?php _e('List View', 'institute-management'); ?>">
                         <span class="dashicons dashicons-list-view"></span>
+                    </button>
+                    <button type="button" class="view-toggle" data-style="grid" title="<?php _e('Grid View', 'institute-management'); ?>">
+                        <span class="dashicons dashicons-grid-view"></span>
                     </button>
                 </div>
                 
-                <div class="institute-sort-controls">
-                    <label for="student-sort"><?php _e('Sort by:', 'institute-management'); ?></label>
-                    <select id="student-sort">
-                        <option value="title-asc"><?php _e('Name (A-Z)', 'institute-management'); ?></option>
-                        <option value="title-desc"><?php _e('Name (Z-A)', 'institute-management'); ?></option>
-                        <option value="date-desc"><?php _e('Newest First', 'institute-management'); ?></option>
-                        <option value="date-asc"><?php _e('Oldest First', 'institute-management'); ?></option>
-                        <option value="id-asc"><?php _e('Student ID', 'institute-management'); ?></option>
-                    </select>
+                <!-- Compact Filters -->
+                <div class="institute-compact-filters">
+                    <div class="institute-filter-compact">
+                        <label for="top-class-filter"><?php _e('Class:', 'institute-management'); ?></label>
+                        <select id="top-class-filter" class="institute-compact-select">
+                            <option value=""><?php _e('All Classes', 'institute-management'); ?></option>
+                            <?php
+                            $classes = get_terms(array(
+                                'taxonomy' => 'student_class',
+                                'hide_empty' => true,
+                                'orderby' => 'name',
+                                'order' => 'ASC'
+                            ));
+                            
+                            if ($classes && !is_wp_error($classes)):
+                                foreach ($classes as $class):
+                                    $count = $class->count;
+                                    echo '<option value="' . esc_attr($class->slug) . '">';
+                                    echo esc_html($class->name) . ' (' . $count . ')';
+                                    echo '</option>';
+                                endforeach;
+                            endif;
+                            ?>
+                        </select>
+                    </div>
+                    
+                    <div class="institute-filter-compact">
+                        <label for="top-session-filter"><?php _e('Session:', 'institute-management'); ?></label>
+                        <select id="top-session-filter" class="institute-compact-select">
+                            <option value=""><?php _e('All Sessions', 'institute-management'); ?></option>
+                            <?php
+                            // Get unique sessions from student meta
+                            global $wpdb;
+                            $sessions = $wpdb->get_col("
+                                SELECT DISTINCT meta_value 
+                                FROM {$wpdb->postmeta} 
+                                WHERE meta_key = '_student_session' 
+                                AND meta_value != '' 
+                                ORDER BY meta_value DESC
+                            ");
+                            
+                            if ($sessions):
+                                foreach ($sessions as $session):
+                                    // Count students in this session
+                                    $count = $wpdb->get_var($wpdb->prepare("
+                                        SELECT COUNT(DISTINCT p.ID)
+                                        FROM {$wpdb->posts} p
+                                        INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
+                                        WHERE p.post_type = 'student'
+                                        AND p.post_status = 'publish'
+                                        AND pm.meta_key = '_student_session'
+                                        AND pm.meta_value = %s
+                                    ", $session));
+                                    
+                                    echo '<option value="' . esc_attr($session) . '">';
+                                    echo esc_html($session) . ' (' . $count . ')';
+                                    echo '</option>';
+                                endforeach;
+                            endif;
+                            ?>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="institute-search-controls">
+                    <label for="student-search-compact"><?php _e('Search:', 'institute-management'); ?></label>
+                    <input type="text" id="student-search-compact" class="institute-search-input" placeholder="<?php _e('Search by name, ID, class...', 'institute-management'); ?>" />
                 </div>
             </div>
             
@@ -143,7 +203,9 @@ $enable_filters = $settings['enable_filters'] ?? true;
             <div id="students-results" class="institute-students-results">
                 
                 <?php if (have_posts()): ?>
-                <div class="institute-students-grid institute-<?php echo esc_attr($style); ?> institute-columns-<?php echo esc_attr($columns); ?>">
+                
+                <!-- Grid View -->
+                <div class="institute-students-grid institute-<?php echo esc_attr($style); ?> institute-columns-<?php echo esc_attr($columns); ?>" style="display: none;">
                     
                     <?php while (have_posts()): the_post(); ?>
                     <article class="institute-student-card" data-student-id="<?php echo esc_attr(get_post_meta(get_the_ID(), '_student_id', true)); ?>">
@@ -182,6 +244,7 @@ $enable_filters = $settings['enable_filters'] ?? true;
                             $role = get_post_meta(get_the_ID(), '_student_role', true);
                             $session = get_post_meta(get_the_ID(), '_student_session', true);
                             $branch = get_post_meta(get_the_ID(), '_student_branch', true);
+                            $phone = get_post_meta(get_the_ID(), '_student_phone', true);
                             $classes = get_the_terms(get_the_ID(), 'student_class');
                             $batches = get_the_terms(get_the_ID(), 'student_batch');
                             ?>
@@ -251,6 +314,147 @@ $enable_filters = $settings['enable_filters'] ?? true;
                     
                 </div>
                 
+                <?php rewind_posts(); ?>
+                
+                <!-- Table View -->
+                <div class="institute-students-table">
+                    <div class="institute-table-wrapper">
+                        <table class="institute-data-table">
+                            <thead>
+                                <tr>
+                                    <th class="institute-th-serial"><?php _e('S.No', 'institute-management'); ?></th>
+                                    <th class="institute-th-photo"><?php _e('Photo', 'institute-management'); ?></th>
+                                    <th class="institute-th-name"><?php _e('Name', 'institute-management'); ?></th>
+                                    <th class="institute-th-id"><?php _e('Student ID', 'institute-management'); ?></th>
+                                    <th class="institute-th-class"><?php _e('Class', 'institute-management'); ?></th>
+                                    <th class="institute-th-batch"><?php _e('Batch', 'institute-management'); ?></th>
+                                    <th class="institute-th-session"><?php _e('Session', 'institute-management'); ?></th>
+                                    <th class="institute-th-mobile"><?php _e('Mobile', 'institute-management'); ?></th>
+                                    <th class="institute-th-status"><?php _e('Status', 'institute-management'); ?></th>
+                                    <th class="institute-th-actions"><?php _e('Actions', 'institute-management'); ?></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php 
+                                $serial = 1;
+                                while (have_posts()): the_post(); 
+                                    $student_id = get_post_meta(get_the_ID(), '_student_id', true);
+                                    $role = get_post_meta(get_the_ID(), '_student_role', true);
+                                    $session = get_post_meta(get_the_ID(), '_student_session', true);
+                                    $branch = get_post_meta(get_the_ID(), '_student_branch', true);
+                                    $phone = get_post_meta(get_the_ID(), '_student_phone', true);
+                                    $status = get_post_meta(get_the_ID(), '_student_status', true);
+                                    $classes = get_the_terms(get_the_ID(), 'student_class');
+                                    $batches = get_the_terms(get_the_ID(), 'student_batch');
+                                ?>
+                                <tr class="institute-student-row" data-student-id="<?php echo esc_attr($student_id); ?>">
+                                    
+                                    <!-- Serial Number -->
+                                    <td class="institute-td-serial"><?php echo $serial++; ?></td>
+                                    
+                                    <!-- Photo -->
+                                    <td class="institute-td-photo">
+                                        <?php if (has_post_thumbnail()): ?>
+                                            <div class="institute-table-photo">
+                                                <a href="<?php the_permalink(); ?>">
+                                                    <?php the_post_thumbnail('thumbnail', array('class' => 'student-table-photo')); ?>
+                                                </a>
+                                            </div>
+                                        <?php else: ?>
+                                            <div class="institute-table-avatar">
+                                                <span class="dashicons dashicons-admin-users"></span>
+                                            </div>
+                                        <?php endif; ?>
+                                    </td>
+                                    
+                                    <!-- Name -->
+                                    <td class="institute-td-name">
+                                        <div class="institute-name-cell">
+                                            <a href="<?php the_permalink(); ?>" class="institute-student-name">
+                                                <?php the_title(); ?>
+                                            </a>
+                                            <?php if ($role): ?>
+                                                <span class="institute-student-role"><?php echo esc_html($role); ?></span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
+                                    
+                                    <!-- Student ID -->
+                                    <td class="institute-td-id">
+                                        <span class="institute-student-id"><?php echo $student_id ? esc_html($student_id) : '-'; ?></span>
+                                    </td>
+                                    
+                                    <!-- Class -->
+                                    <td class="institute-td-class">
+                                        <?php if ($classes && !is_wp_error($classes)): ?>
+                                            <?php 
+                                            $class_names = wp_list_pluck($classes, 'name');
+                                            echo esc_html(implode(', ', $class_names));
+                                            ?>
+                                        <?php else: ?>
+                                            <span class="institute-no-data">-</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    
+                                    <!-- Batch -->
+                                    <td class="institute-td-batch">
+                                        <?php if ($batches && !is_wp_error($batches)): ?>
+                                            <?php echo esc_html($batches[0]->name); ?>
+                                        <?php else: ?>
+                                            <span class="institute-no-data">-</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    
+                                    <!-- Session -->
+                                    <td class="institute-td-session">
+                                        <?php echo $session ? esc_html($session) : '<span class="institute-no-data">-</span>'; ?>
+                                    </td>
+                                    
+                                    <!-- Mobile -->
+                                    <td class="institute-td-mobile">
+                                        <?php if ($phone): ?>
+                                            <a href="tel:<?php echo esc_attr($phone); ?>" class="institute-phone-link">
+                                                <?php echo esc_html($phone); ?>
+                                            </a>
+                                        <?php else: ?>
+                                            <span class="institute-no-data">-</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    
+                                    <!-- Status -->
+                                    <td class="institute-td-status">
+                                        <?php if ($status): ?>
+                                            <span class="institute-status-badge institute-status-<?php echo esc_attr($status); ?>">
+                                                <?php echo esc_html(ucfirst($status)); ?>
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="institute-status-badge institute-status-active">
+                                                <?php _e('Active', 'institute-management'); ?>
+                                            </span>
+                                        <?php endif; ?>
+                                    </td>
+                                    
+                                    <!-- Actions -->
+                                    <td class="institute-td-actions">
+                                        <div class="institute-table-actions">
+                                            <a href="<?php the_permalink(); ?>" class="institute-btn institute-btn-sm institute-btn-primary" title="<?php _e('View Profile', 'institute-management'); ?>">
+                                                <span class="dashicons dashicons-visibility"></span>
+                                            </a>
+                                            <?php if (current_user_can('edit_posts')): ?>
+                                                <a href="<?php echo get_edit_post_link(); ?>" class="institute-btn institute-btn-sm institute-btn-secondary" title="<?php _e('Edit', 'institute-management'); ?>">
+                                                    <span class="dashicons dashicons-edit"></span>
+                                                </a>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
+                                    
+                                </tr>
+                                <?php endwhile; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
                 <!-- Pagination -->
                 <div class="institute-pagination">
                     <?php
@@ -303,6 +507,10 @@ jQuery(document).ready(function($) {
     // Initialize filtering and search
     var searchTimeout;
     
+    // Initialize with list view as default
+    $('.institute-students-grid').hide();
+    $('.institute-students-table').show();
+    
     // Search functionality
     $('#student-search').on('input', function() {
         clearTimeout(searchTimeout);
@@ -320,9 +528,13 @@ jQuery(document).ready(function($) {
         performFilter();
     });
     
-    // Sort functionality
-    $('#student-sort').on('change', function() {
-        performSort();
+    // Compact search functionality
+    var searchTimeout;
+    $('#student-search-compact').on('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(function() {
+            performTopFilter();
+        }, 500);
     });
     
     // View toggle
@@ -331,9 +543,13 @@ jQuery(document).ready(function($) {
         $('.view-toggle').removeClass('active');
         $(this).addClass('active');
         
-        var $grid = $('.institute-students-grid');
-        $grid.removeClass('institute-grid institute-list institute-table');
-        $grid.addClass('institute-' + style);
+        if (style === 'grid') {
+            $('.institute-students-grid').show();
+            $('.institute-students-table').hide();
+        } else if (style === 'list') {
+            $('.institute-students-grid').hide();
+            $('.institute-students-table').show();
+        }
     });
     
     // Clear filters
@@ -341,6 +557,11 @@ jQuery(document).ready(function($) {
         $('.institute-filter-select').val('');
         $('#student-search').val('');
         performFilter();
+    });
+    
+    // Compact filters functionality - auto-apply on change
+    $('.institute-compact-select').on('change', function() {
+        performTopFilter();
     });
     
     function performSearch() {
@@ -358,10 +579,13 @@ jQuery(document).ready(function($) {
         loadResults('filter', filters);
     }
     
-    function performSort() {
-        var sort = $('#student-sort').val();
-        var parts = sort.split('-');
-        loadResults('sort', { orderby: parts[0], order: parts[1] });
+    function performTopFilter() {
+        var filters = {
+            class: $('#top-class-filter').val(),
+            session: $('#top-session-filter').val(),
+            search: $('#student-search-compact').val()
+        };
+        loadResults('top_filter', filters);
     }
     
     function loadResults(action, data) {

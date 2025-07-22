@@ -9,45 +9,44 @@ $settings = get_option('institute_management_settings', array());
 $institute_name = $settings['institute_name'] ?? get_bloginfo('name');
 $enable_search = $settings['enable_search'] ?? true;
 $enable_filters = $settings['enable_filters'] ?? true;
-?>
 
-<!DOCTYPE html>
-<html <?php language_attributes(); ?>>
-<head>
-    <meta charset="<?php bloginfo('charset'); ?>">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="profile" href="https://gmpg.org/xfn/11">
-    
-    <title><?php wp_title('|', true, 'right'); ?><?php echo esc_html($institute_name); ?></title>
-    <meta name="description" content="<?php _e('Complete directory of students and staff at', 'institute-management'); ?> <?php echo esc_attr($institute_name); ?>">
-    
-    <?php wp_head(); ?>
+// Add body class for our custom styling
+add_filter('body_class', function($classes) {
+    $classes[] = 'institute-directory-page';
+    return $classes;
+});
+
+get_header(); ?>
     
     <style>
         /* Override theme styles for full width */
-        .institute-directory-fullwidth {
-            width: 100%;
-            max-width: none;
-            margin: 0;
-            padding: 0;
+        .institute-directory-page .site-content,
+        .institute-directory-page .content-area,
+        .institute-directory-page #main,
+        .institute-directory-page #primary,
+        .institute-directory-page .container,
+        .institute-directory-page .wrap {
+            max-width: none !important;
+            width: 100% !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
         }
         
-        .institute-directory-fullwidth .site-content {
-            width: 100%;
-            max-width: none;
-            padding: 0;
-        }
-        
-        .institute-directory-fullwidth #primary {
-            width: 100%;
-            float: none;
-            margin: 0;
-        }
-        
-        .institute-directory-fullwidth #secondary,
-        .institute-directory-fullwidth .sidebar,
-        .institute-directory-fullwidth aside {
+        /* Hide sidebars completely */
+        .institute-directory-page #secondary,
+        .institute-directory-page .sidebar,
+        .institute-directory-page aside {
             display: none !important;
+        }
+        
+        /* Remove any theme padding/margins on main content */
+        .institute-directory-page .site-main,
+        .institute-directory-page .main-content,
+        .institute-directory-page .content-wrapper {
+            padding: 0 !important;
+            margin: 0 !important;
         }
         
         /* Custom full width container */
@@ -58,15 +57,17 @@ $enable_filters = $settings['enable_filters'] ?? true;
             padding: 0 20px;
         }
         
-        /* Full width header */
+        /* Full width hero section */
         .institute-directory-hero {
             background: linear-gradient(135deg, var(--institute-primary, #2563eb), var(--institute-secondary, #7c3aed));
             color: white;
             padding: 4rem 0;
-            margin: 0;
+            margin: 0 !important;
             text-align: center;
             position: relative;
             overflow: hidden;
+            width: 100vw;
+            margin-left: calc(50% - 50vw) !important;
         }
         
         .institute-directory-hero::before {
@@ -130,34 +131,184 @@ $enable_filters = $settings['enable_filters'] ?? true;
             letter-spacing: 0.05em;
         }
         
-        /* Override any theme container constraints */
-        body.institute-directory-page .site,
-        body.institute-directory-page .site-content,
-        body.institute-directory-page .content-area,
-        body.institute-directory-page #main,
-        body.institute-directory-page #primary {
-            max-width: none !important;
-            width: 100% !important;
+        /* Hide breadcrumbs and other theme elements */
+        .institute-directory-page .breadcrumbs,
+        .institute-directory-page .breadcrumb,
+        .institute-directory-page .page-header {
+            display: none !important;
         }
         
-        /* Hide breadcrumbs if theme adds them */
-        body.institute-directory-page .breadcrumbs,
-        body.institute-directory-page .breadcrumb {
-            display: none;
+        /* Ensure full width even in themes with containers */
+        .institute-directory-page {
+            overflow-x: hidden;
+        }
+        
+        /* Directory specific styles */
+        .institute-directory-grid {
+            display: grid;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .institute-directory-grid.institute-grid {
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+        
+        .institute-columns-3.institute-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        
+        .institute-directory-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .institute-directory-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        .institute-card-photo {
+            text-align: center;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+        
+        .institute-card-photo img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #f1f5f9;
+        }
+        
+        .institute-default-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            color: white;
+            font-size: 2.5rem;
+        }
+        
+        .institute-card-content {
+            text-align: center;
+        }
+        
+        .institute-card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0 0 1rem 0;
+            color: #1f2937;
+        }
+        
+        .institute-card-title a {
+            color: inherit;
+            text-decoration: none;
+        }
+        
+        .institute-card-title a:hover {
+            color: #2563eb;
+        }
+        
+        .institute-card-id {
+            background: #f1f5f9;
+            padding: 0.5rem;
+            border-radius: 6px;
+            margin: 0 0 0.75rem 0;
+            font-family: monospace;
+            font-weight: 600;
+            color: #2563eb;
+        }
+        
+        .institute-card-content p {
+            margin: 0.5rem 0;
+            font-size: 0.875rem;
+            color: #6b7280;
+            line-height: 1.5;
+        }
+        
+        .institute-card-content strong {
+            color: #374151;
+        }
+        
+        .institute-card-actions {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #f3f4f6;
+        }
+        
+        .institute-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+        
+        .institute-btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .institute-btn-primary:hover {
+            background: #1d4ed8;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .institute-no-results {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: #f9fafb;
+            border-radius: 12px;
+            border: 2px dashed #d1d5db;
+        }
+        
+        .institute-no-results .no-results-icon {
+            font-size: 4rem;
+            color: #9ca3af;
+            margin-bottom: 1rem;
+        }
+        
+        .institute-no-results h3 {
+            font-size: 1.5rem;
+            color: #374151;
+            margin: 0 0 1rem 0;
+        }
+        
+        .institute-no-results p {
+            color: #6b7280;
+            margin: 0;
+        }
+        
+        @media (max-width: 1024px) {
+            .institute-columns-3.institute-grid { 
+                grid-template-columns: repeat(2, 1fr); 
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .institute-columns-3.institute-grid { 
+                grid-template-columns: 1fr; 
+            }
         }
     </style>
-</head>
 
-<body <?php body_class('institute-directory-page institute-directory-fullwidth'); ?>>
-
-<?php wp_body_open(); ?>
-
-<div id="page" class="site">
-    
-    <!-- Skip link for accessibility -->
-    <a class="skip-link screen-reader-text" href="#main"><?php _e('Skip to content', 'institute-management'); ?></a>
-
-    <!-- Full Width Hero Section -->
+<!-- Full Width Hero Section -->
     <section class="institute-directory-hero">
         <div class="institute-fullwidth-container">
             <div class="institute-directory-hero-content">
@@ -317,11 +468,121 @@ $enable_filters = $settings['enable_filters'] ?? true;
                 
                 <!-- Results Area -->
                 <div id="directory-results" class="institute-directory-results">
-                    <!-- Default content will be loaded here -->
-                    <div class="institute-loading-initial">
-                        <p style="text-align: center; padding: 2rem; color: #6b7280;">
-                            <?php _e('Loading directory...', 'institute-management'); ?>
-                        </p>
+                    <!-- Fallback content if AJAX fails -->
+                    <div class="institute-fallback-content">
+                        <?php
+                        // Display students
+                        $students = get_posts(array(
+                            'post_type' => 'student',
+                            'posts_per_page' => 10,
+                            'post_status' => 'publish'
+                        ));
+                        
+                        if (!empty($students)): ?>
+                        <h3><?php _e('Students', 'institute-management'); ?></h3>
+                        <div class="institute-directory-grid institute-grid institute-columns-3">
+                            <?php foreach ($students as $student): ?>
+                            <div class="institute-directory-card institute-student-card">
+                                <div class="institute-card-photo">
+                                    <?php if (has_post_thumbnail($student->ID)): ?>
+                                        <a href="<?php echo get_permalink($student->ID); ?>">
+                                            <?php echo get_the_post_thumbnail($student->ID, 'medium'); ?>
+                                        </a>
+                                    <?php else: ?>
+                                        <div class="institute-default-avatar">
+                                            <span class="dashicons dashicons-admin-users"></span>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="institute-card-content">
+                                    <h3 class="institute-card-title">
+                                        <a href="<?php echo get_permalink($student->ID); ?>"><?php echo esc_html($student->post_title); ?></a>
+                                    </h3>
+                                    <?php
+                                    $student_id = get_post_meta($student->ID, '_student_id', true);
+                                    if ($student_id): ?>
+                                        <p class="institute-card-id"><strong><?php _e('ID:', 'institute-management'); ?></strong> <?php echo esc_html($student_id); ?></p>
+                                    <?php endif; ?>
+                                    
+                                    <?php
+                                    $class_terms = get_the_terms($student->ID, 'student_class');
+                                    if ($class_terms && !is_wp_error($class_terms)): ?>
+                                        <p class="institute-card-class"><strong><?php _e('Class:', 'institute-management'); ?></strong> <?php echo esc_html($class_terms[0]->name); ?></p>
+                                    <?php endif; ?>
+                                    
+                                    <div class="institute-card-actions">
+                                        <a href="<?php echo get_permalink($student->ID); ?>" class="institute-btn institute-btn-primary"><?php _e('View Profile', 'institute-management'); ?></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                        <?php endif; ?>
+                        
+                        <?php
+                        // Display staff
+                        $staff = get_posts(array(
+                            'post_type' => 'staff',
+                            'posts_per_page' => 10,
+                            'post_status' => 'publish'
+                        ));
+                        
+                        if (!empty($staff)): ?>
+                        <h3><?php _e('Staff', 'institute-management'); ?></h3>
+                        <div class="institute-directory-grid institute-grid institute-columns-3">
+                            <?php foreach ($staff as $staff_member): ?>
+                            <div class="institute-directory-card institute-staff-card">
+                                <div class="institute-card-photo">
+                                    <?php if (has_post_thumbnail($staff_member->ID)): ?>
+                                        <a href="<?php echo get_permalink($staff_member->ID); ?>">
+                                            <?php echo get_the_post_thumbnail($staff_member->ID, 'medium'); ?>
+                                        </a>
+                                    <?php else: ?>
+                                        <div class="institute-default-avatar">
+                                            <span class="dashicons dashicons-businessperson"></span>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="institute-card-content">
+                                    <h3 class="institute-card-title">
+                                        <a href="<?php echo get_permalink($staff_member->ID); ?>"><?php echo esc_html($staff_member->post_title); ?></a>
+                                    </h3>
+                                    <?php
+                                    $staff_id = get_post_meta($staff_member->ID, '_staff_id', true);
+                                    if ($staff_id): ?>
+                                        <p class="institute-card-id"><strong><?php _e('ID:', 'institute-management'); ?></strong> <?php echo esc_html($staff_id); ?></p>
+                                    <?php endif; ?>
+                                    
+                                    <?php
+                                    $position = get_post_meta($staff_member->ID, '_staff_position', true);
+                                    if ($position): ?>
+                                        <p class="institute-card-position"><strong><?php _e('Position:', 'institute-management'); ?></strong> <?php echo esc_html($position); ?></p>
+                                    <?php endif; ?>
+                                    
+                                    <?php
+                                    $dept_terms = get_the_terms($staff_member->ID, 'staff_department');
+                                    if ($dept_terms && !is_wp_error($dept_terms)): ?>
+                                        <p class="institute-card-department"><strong><?php _e('Department:', 'institute-management'); ?></strong> <?php echo esc_html($dept_terms[0]->name); ?></p>
+                                    <?php endif; ?>
+                                    
+                                    <div class="institute-card-actions">
+                                        <a href="<?php echo get_permalink($staff_member->ID); ?>" class="institute-btn institute-btn-primary"><?php _e('View Profile', 'institute-management'); ?></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                        <?php endif; ?>
+                        
+                        <?php if (empty($students) && empty($staff)): ?>
+                        <div class="institute-no-results">
+                            <div class="no-results-icon">
+                                <span class="dashicons dashicons-admin-users"></span>
+                            </div>
+                            <h3><?php _e('No directory entries found', 'institute-management'); ?></h3>
+                            <p><?php _e('Please add some students and staff members to display in the directory.', 'institute-management'); ?></p>
+                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
                 
@@ -332,7 +593,7 @@ $enable_filters = $settings['enable_filters'] ?? true;
                 <?php while (have_posts()): the_post(); ?>
                     <?php if (get_the_content()): ?>
                     <section class="institute-page-content" style="padding: 2rem 0; background: #f8fafc; margin: 2rem 0; border-radius: 12px;">
-                        <div style="max-width: 800px; margin: 0 auto; padding: 0 2rem;">
+                        <div style="margin: 0 auto; padding: 0 2rem;">
                             <div class="entry-content">
                                 <?php the_content(); ?>
                             </div>
@@ -343,9 +604,6 @@ $enable_filters = $settings['enable_filters'] ?? true;
             <?php endif; ?>
             
         </div>
-    </main>
-
-</div><!-- #page -->
 
 <!-- Loading Overlay -->
 <div id="institute-directory-loading" class="institute-loading-overlay" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255, 255, 255, 0.9); z-index: 9999; display: flex; align-items: center; justify-content: center;">
@@ -408,6 +666,12 @@ jQuery(document).ready(function($) {
     });
     
     function loadDirectoryContent() {
+        // Only try AJAX if we have the required variables
+        if (typeof institute_templates === 'undefined') {
+            console.log('AJAX variables not available, using fallback content');
+            return; // Keep fallback content
+        }
+        
         $('#institute-directory-loading').show();
         
         $.ajax({
@@ -422,12 +686,14 @@ jQuery(document).ready(function($) {
                 if (response.success) {
                     $('#directory-results').html(response.data);
                 } else {
-                    $('#directory-results').html('<p style="text-align: center; color: #ef4444;">Error loading directory.</p>');
+                    console.log('AJAX failed, keeping fallback content');
+                    // Keep fallback content instead of showing error
                 }
             },
             error: function() {
                 $('#institute-directory-loading').hide();
-                $('#directory-results').html('<p style="text-align: center; color: #ef4444;">Error loading directory.</p>');
+                console.log('AJAX error, keeping fallback content');
+                // Keep fallback content instead of showing error
             }
         });
     }
@@ -510,7 +776,19 @@ jQuery(document).ready(function($) {
 }
 </style>
 
-<?php wp_footer(); ?>
+<script>
+// Fix AJAX variable availability
+if (typeof institute_templates === 'undefined') {
+    window.institute_templates = {
+        ajax_url: '<?php echo admin_url('admin-ajax.php'); ?>',
+        nonce: '<?php echo wp_create_nonce('institute_management_nonce'); ?>',
+        strings: {
+            loading: '<?php _e('Loading...', 'institute-management'); ?>',
+            no_results: '<?php _e('No results found.', 'institute-management'); ?>',
+            error: '<?php _e('An error occurred. Please try again.', 'institute-management'); ?>'
+        }
+    };
+}
+</script>
 
-</body>
-</html> 
+<?php get_footer(); ?> 
