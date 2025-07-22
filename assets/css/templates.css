@@ -1,0 +1,799 @@
+/**
+ * Institute Management Template Styles
+ * Styling for archive and single page templates
+ */
+
+/* ==========================================================================
+   Archive Page Styles
+   ========================================================================== */
+
+.institute-archive-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.institute-archive-header {
+    text-align: center;
+    padding: 3rem 0 2rem;
+    background: linear-gradient(135deg, var(--institute-primary, #2563eb), var(--institute-secondary, #7c3aed));
+    color: white;
+    margin: -20px -20px 2rem -20px;
+    border-radius: 0 0 15px 15px;
+}
+
+.institute-archive-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.institute-subtitle {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 400;
+    opacity: 0.9;
+    margin-top: 0.5rem;
+}
+
+.institute-archive-description {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin: 0;
+}
+
+/* ==========================================================================
+   Filters Section
+   ========================================================================== */
+
+.institute-filters-section {
+    background: #f8fafc;
+    padding: 2rem 0;
+    margin: 0 -20px 2rem -20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.institute-filters-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.institute-search-box {
+    display: flex;
+    gap: 0.5rem;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.institute-search-box input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.institute-search-box input:focus {
+    outline: none;
+    border-color: var(--institute-primary, #2563eb);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.institute-search-box button {
+    padding: 12px 20px;
+    background: var(--institute-primary, #2563eb);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+.institute-search-box button:hover {
+    background: #1d4ed8;
+}
+
+.institute-filter-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+}
+
+.institute-filter-select {
+    padding: 10px 15px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    background: white;
+    font-size: 0.875rem;
+    min-width: 150px;
+}
+
+.institute-filter-select:focus {
+    outline: none;
+    border-color: var(--institute-primary, #2563eb);
+}
+
+/* ==========================================================================
+   Display Controls
+   ========================================================================== */
+
+.institute-display-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.institute-view-toggle {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.view-toggle {
+    padding: 10px 12px;
+    border: 2px solid #e5e7eb;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.view-toggle:hover,
+.view-toggle.active {
+    border-color: var(--institute-primary, #2563eb);
+    background: var(--institute-primary, #2563eb);
+    color: white;
+}
+
+.institute-sort-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.institute-sort-controls label {
+    font-weight: 600;
+    color: #374151;
+}
+
+.institute-sort-controls select {
+    padding: 8px 12px;
+    border: 2px solid #e5e7eb;
+    border-radius: 6px;
+    background: white;
+}
+
+/* ==========================================================================
+   Results Grid
+   ========================================================================== */
+
+.institute-students-results,
+.institute-staff-results {
+    min-height: 400px;
+}
+
+.institute-students-grid,
+.institute-staff-grid {
+    display: grid;
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+/* Grid Layout */
+.institute-students-grid.institute-grid,
+.institute-staff-grid.institute-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.institute-columns-2.institute-grid { grid-template-columns: repeat(2, 1fr); }
+.institute-columns-3.institute-grid { grid-template-columns: repeat(3, 1fr); }
+.institute-columns-4.institute-grid { grid-template-columns: repeat(4, 1fr); }
+
+/* List Layout */
+.institute-students-grid.institute-list,
+.institute-staff-grid.institute-list {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+.institute-list .institute-student-card,
+.institute-list .institute-staff-card {
+    display: flex;
+    align-items: center;
+    text-align: left;
+    padding: 1.5rem;
+}
+
+.institute-list .institute-card-photo {
+    margin-right: 2rem;
+    margin-bottom: 0;
+    flex-shrink: 0;
+}
+
+.institute-list .institute-card-photo img {
+    width: 80px;
+    height: 80px;
+}
+
+/* ==========================================================================
+   Student/Staff Cards
+   ========================================================================== */
+
+.institute-student-card,
+.institute-staff-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.institute-student-card:hover,
+.institute-staff-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+.institute-card-photo {
+    text-align: center;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.institute-card-photo img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #f1f5f9;
+    transition: transform 0.3s ease;
+}
+
+.institute-card-photo:hover img {
+    transform: scale(1.05);
+}
+
+.institute-default-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--institute-primary, #2563eb), var(--institute-secondary, #7c3aed));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    color: white;
+    font-size: 2.5rem;
+}
+
+.institute-status-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    padding: 0.25rem 0.5rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.institute-status-active {
+    background: #10b981;
+    color: white;
+}
+
+.institute-status-inactive {
+    background: #6b7280;
+    color: white;
+}
+
+.institute-status-graduated {
+    background: #3b82f6;
+    color: white;
+}
+
+.institute-status-suspended {
+    background: #f59e0b;
+    color: white;
+}
+
+.institute-card-content {
+    text-align: center;
+}
+
+.institute-card-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+    color: #1f2937;
+}
+
+.institute-card-title a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.institute-card-title a:hover {
+    color: var(--institute-primary, #2563eb);
+}
+
+.institute-card-id {
+    background: #f1f5f9;
+    padding: 0.5rem;
+    border-radius: 6px;
+    margin: 0 0 0.75rem 0;
+    font-family: monospace;
+    font-weight: 600;
+    color: var(--institute-primary, #2563eb);
+}
+
+.institute-card-content p {
+    margin: 0.5rem 0;
+    font-size: 0.875rem;
+    color: #6b7280;
+    line-height: 1.5;
+}
+
+.institute-card-content strong {
+    color: #374151;
+}
+
+.institute-card-excerpt {
+    margin: 1rem 0;
+    font-size: 0.875rem;
+    color: #6b7280;
+    line-height: 1.6;
+    border-top: 1px solid #f3f4f6;
+    padding-top: 1rem;
+}
+
+.institute-card-actions {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f3f4f6;
+}
+
+.institute-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.875rem;
+}
+
+.institute-btn-primary {
+    background: var(--institute-primary, #2563eb);
+    color: white;
+}
+
+.institute-btn-primary:hover {
+    background: #1d4ed8;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.institute-btn-secondary {
+    background: #6b7280;
+    color: white;
+}
+
+.institute-btn-secondary:hover {
+    background: #374151;
+    color: white;
+}
+
+/* ==========================================================================
+   Pagination
+   ========================================================================== */
+
+.institute-pagination {
+    margin: 3rem 0;
+    text-align: center;
+}
+
+.institute-pagination .page-numbers {
+    display: inline-block;
+    padding: 10px 15px;
+    margin: 0 5px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    color: #374151;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.institute-pagination .page-numbers:hover,
+.institute-pagination .page-numbers.current {
+    background: var(--institute-primary, #2563eb);
+    border-color: var(--institute-primary, #2563eb);
+    color: white;
+}
+
+/* ==========================================================================
+   No Results
+   ========================================================================== */
+
+.institute-no-results {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: #f9fafb;
+    border-radius: 12px;
+    border: 2px dashed #d1d5db;
+}
+
+.no-results-icon {
+    font-size: 4rem;
+    color: #9ca3af;
+    margin-bottom: 1rem;
+}
+
+.institute-no-results h3 {
+    font-size: 1.5rem;
+    color: #374151;
+    margin: 0 0 1rem 0;
+}
+
+.institute-no-results p {
+    color: #6b7280;
+    margin: 0 0 2rem 0;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ==========================================================================
+   Loading Overlay
+   ========================================================================== */
+
+.institute-loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.institute-loading-spinner {
+    text-align: center;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f4f6;
+    border-top: 5px solid var(--institute-primary, #2563eb);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   Single Profile Styles
+   ========================================================================== */
+
+.institute-profile-wrapper {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.institute-profile-header {
+    text-align: center;
+    padding: 2rem;
+    background: linear-gradient(135deg, var(--institute-primary, #2563eb), var(--institute-secondary, #7c3aed));
+    color: white;
+    border-radius: 15px;
+    margin-bottom: 2rem;
+}
+
+.institute-profile-photo {
+    margin-bottom: 1rem;
+}
+
+.institute-profile-photo img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid rgba(255,255,255,0.2);
+}
+
+.institute-profile-title {
+    font-size: 2rem;
+    margin: 0 0 0.5rem 0;
+}
+
+.institute-profile-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.institute-profile-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.institute-profile-section {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.institute-profile-section:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.institute-profile-section h3 {
+    color: var(--institute-primary, #2563eb);
+    margin: 0 0 1rem 0;
+    font-size: 1.25rem;
+}
+
+.institute-profile-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.institute-meta-item {
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 8px;
+    border-left: 4px solid var(--institute-primary, #2563eb);
+}
+
+.institute-meta-label {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.25rem;
+}
+
+.institute-meta-value {
+    color: #6b7280;
+}
+
+/* ==========================================================================
+   Responsive Design
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+    .institute-columns-4.institute-grid { grid-template-columns: repeat(3, 1fr); }
+    .institute-columns-3.institute-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+    .institute-archive-wrapper {
+        padding: 0 15px;
+    }
+    
+    .institute-archive-header {
+        margin: -15px -15px 1.5rem -15px;
+        padding: 2rem 0 1.5rem;
+    }
+    
+    .institute-archive-title {
+        font-size: 1.8rem;
+    }
+    
+    .institute-filters-section {
+        margin: 0 -15px 1.5rem -15px;
+        padding: 1.5rem 0;
+    }
+    
+    .institute-filter-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .institute-filter-select {
+        min-width: auto;
+    }
+    
+    .institute-display-controls {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+    
+    .institute-view-toggle {
+        justify-content: center;
+    }
+    
+    .institute-sort-controls {
+        justify-content: center;
+    }
+    
+    .institute-columns-2.institute-grid,
+    .institute-columns-3.institute-grid,
+    .institute-columns-4.institute-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .institute-list .institute-student-card,
+    .institute-list .institute-staff-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .institute-list .institute-card-photo {
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .institute-search-box {
+        flex-direction: column;
+    }
+    
+    .institute-profile-wrapper {
+        padding: 1rem;
+    }
+    
+    .institute-profile-content {
+        padding: 1.5rem;
+    }
+    
+    .institute-profile-meta {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==========================================================================
+   Full Width Directory Styles
+   ========================================================================== */
+
+.institute-directory-grid {
+    display: grid;
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.institute-directory-grid.institute-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.institute-directory-grid.institute-list {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+.institute-directory-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.institute-directory-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+.institute-directory-grid.institute-list .institute-directory-card {
+    display: flex;
+    align-items: center;
+    text-align: left;
+    padding: 1.5rem;
+}
+
+.institute-directory-grid.institute-list .institute-card-photo {
+    margin-right: 2rem;
+    margin-bottom: 0;
+    flex-shrink: 0;
+}
+
+.institute-directory-grid.institute-list .institute-card-photo img {
+    width: 80px;
+    height: 80px;
+}
+
+/* Directory specific no results */
+.institute-directory-results .institute-no-results {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: #f9fafb;
+    border-radius: 12px;
+    border: 2px dashed #d1d5db;
+}
+
+.institute-directory-results .no-results-icon {
+    font-size: 4rem;
+    color: #9ca3af;
+    margin-bottom: 1rem;
+}
+
+.institute-directory-results .institute-no-results h3 {
+    font-size: 1.5rem;
+    color: #374151;
+    margin: 0 0 1rem 0;
+}
+
+.institute-directory-results .institute-no-results p {
+    color: #6b7280;
+    margin: 0;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ==========================================================================
+   Print Styles
+   ========================================================================== */
+
+@media print {
+    .institute-filters-section,
+    .institute-display-controls,
+    .institute-card-actions,
+    .institute-loading-overlay,
+    .institute-directory-search,
+    .institute-directory-controls {
+        display: none !important;
+    }
+    
+    .institute-student-card,
+    .institute-staff-card,
+    .institute-directory-card {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #ccc;
+    }
+    
+    .institute-students-grid,
+    .institute-staff-grid,
+    .institute-directory-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 1rem;
+    }
+    
+    .institute-directory-hero {
+        background: #f0f0f0 !important;
+        color: #000 !important;
+        padding: 2rem 0 !important;
+    }
+    
+    .institute-hero-title {
+        color: #000 !important;
+        text-shadow: none !important;
+    }
+} 

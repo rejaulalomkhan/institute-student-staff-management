@@ -1,0 +1,473 @@
+/**
+ * Institute Management Frontend Styles
+ * Modern, responsive design with clean aesthetics
+ */
+
+/* ==========================================================================
+   Variables & Base Styles
+   ========================================================================== */
+
+:root {
+    --institute-primary: #2563eb;
+    --institute-secondary: #7c3aed;
+    --institute-accent: #06b6d4;
+    --institute-success: #10b981;
+    --institute-warning: #f59e0b;
+    --institute-error: #ef4444;
+    
+    --institute-text-primary: #1f2937;
+    --institute-text-secondary: #6b7280;
+    --institute-text-muted: #9ca3af;
+    
+    --institute-bg-primary: #ffffff;
+    --institute-bg-secondary: #f9fafb;
+    --institute-bg-tertiary: #f3f4f6;
+    
+    --institute-border: #e5e7eb;
+    --institute-border-light: #f3f4f6;
+    
+    --institute-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --institute-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --institute-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    
+    --institute-radius: 8px;
+    --institute-radius-lg: 12px;
+    --institute-spacing: 1rem;
+    --institute-spacing-sm: 0.5rem;
+    --institute-spacing-lg: 2rem;
+}
+
+/* ==========================================================================
+   Grid Layouts
+   ========================================================================== */
+
+.institute-students-wrapper,
+.institute-staff-wrapper {
+    display: grid;
+    gap: var(--institute-spacing-lg);
+    margin: var(--institute-spacing-lg) 0;
+}
+
+/* Grid Columns */
+.institute-columns-1 { grid-template-columns: 1fr; }
+.institute-columns-2 { grid-template-columns: repeat(2, 1fr); }
+.institute-columns-3 { grid-template-columns: repeat(3, 1fr); }
+.institute-columns-4 { grid-template-columns: repeat(4, 1fr); }
+.institute-columns-5 { grid-template-columns: repeat(5, 1fr); }
+.institute-columns-6 { grid-template-columns: repeat(6, 1fr); }
+
+/* Responsive Grid */
+@media (max-width: 1024px) {
+    .institute-columns-4,
+    .institute-columns-5,
+    .institute-columns-6 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .institute-columns-3,
+    .institute-columns-4,
+    .institute-columns-5,
+    .institute-columns-6 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .institute-columns-2,
+    .institute-columns-3,
+    .institute-columns-4,
+    .institute-columns-5,
+    .institute-columns-6 {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==========================================================================
+   Card Styles
+   ========================================================================== */
+
+.institute-student-card,
+.institute-staff-card {
+    background: var(--institute-bg-primary);
+    border: 1px solid var(--institute-border);
+    border-radius: var(--institute-radius-lg);
+    padding: var(--institute-spacing-lg);
+    box-shadow: var(--institute-shadow-sm);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.institute-student-card:hover,
+.institute-staff-card:hover {
+    box-shadow: var(--institute-shadow-lg);
+    transform: translateY(-2px);
+    border-color: var(--institute-primary);
+}
+
+.institute-card-photo {
+    text-align: center;
+    margin-bottom: var(--institute-spacing);
+    position: relative;
+}
+
+.institute-card-photo img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--institute-bg-secondary);
+    box-shadow: var(--institute-shadow-md);
+}
+
+.institute-default-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--institute-primary), var(--institute-secondary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    color: white;
+    font-size: 2rem;
+}
+
+.institute-card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--institute-text-primary);
+    margin: 0 0 var(--institute-spacing-sm) 0;
+    text-align: center;
+}
+
+.institute-card-content p {
+    margin: var(--institute-spacing-sm) 0;
+    color: var(--institute-text-secondary);
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.institute-card-id {
+    text-align: center;
+    background: var(--institute-bg-tertiary);
+    padding: var(--institute-spacing-sm);
+    border-radius: var(--institute-radius);
+    font-family: monospace;
+    font-weight: 600;
+    color: var(--institute-primary) !important;
+}
+
+.institute-card-contact {
+    margin-top: var(--institute-spacing);
+    padding-top: var(--institute-spacing);
+    border-top: 1px solid var(--institute-border-light);
+}
+
+/* ==========================================================================
+   List Styles
+   ========================================================================== */
+
+.institute-students-list,
+.institute-staff-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--institute-spacing);
+}
+
+.institute-students-list .institute-student-card,
+.institute-staff-list .institute-staff-card {
+    display: flex;
+    align-items: center;
+    padding: var(--institute-spacing);
+    text-align: left;
+}
+
+.institute-students-list .institute-card-photo,
+.institute-staff-list .institute-card-photo {
+    margin-right: var(--institute-spacing);
+    margin-bottom: 0;
+    flex-shrink: 0;
+}
+
+.institute-students-list .institute-card-photo img,
+.institute-staff-list .institute-card-photo img {
+    width: 60px;
+    height: 60px;
+}
+
+.institute-students-list .institute-default-avatar,
+.institute-staff-list .institute-default-avatar {
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+}
+
+.institute-students-list .institute-card-title,
+.institute-staff-list .institute-card-title {
+    text-align: left;
+    margin-bottom: var(--institute-spacing-sm);
+}
+
+/* ==========================================================================
+   Table Styles
+   ========================================================================== */
+
+.institute-students-table,
+.institute-staff-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--institute-bg-primary);
+    border-radius: var(--institute-radius-lg);
+    overflow: hidden;
+    box-shadow: var(--institute-shadow-md);
+}
+
+.institute-students-table th,
+.institute-staff-table th,
+.institute-students-table td,
+.institute-staff-table td {
+    padding: var(--institute-spacing);
+    text-align: left;
+    border-bottom: 1px solid var(--institute-border-light);
+}
+
+.institute-students-table th,
+.institute-staff-table th {
+    background: var(--institute-bg-secondary);
+    font-weight: 600;
+    color: var(--institute-text-primary);
+}
+
+.institute-students-table tr:hover,
+.institute-staff-table tr:hover {
+    background: var(--institute-bg-tertiary);
+}
+
+/* ==========================================================================
+   Directory Styles
+   ========================================================================== */
+
+.institute-directory-wrapper {
+    background: var(--institute-bg-primary);
+    border-radius: var(--institute-radius-lg);
+    padding: var(--institute-spacing-lg);
+    box-shadow: var(--institute-shadow-md);
+}
+
+.institute-directory-search {
+    display: flex;
+    gap: var(--institute-spacing-sm);
+    margin-bottom: var(--institute-spacing-lg);
+    align-items: center;
+}
+
+.institute-directory-search input {
+    flex: 1;
+    padding: var(--institute-spacing-sm) var(--institute-spacing);
+    border: 1px solid var(--institute-border);
+    border-radius: var(--institute-radius);
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.institute-directory-search input:focus {
+    outline: none;
+    border-color: var(--institute-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.institute-directory-search button {
+    padding: var(--institute-spacing-sm) var(--institute-spacing-lg);
+    background: var(--institute-primary);
+    color: white;
+    border: none;
+    border-radius: var(--institute-radius);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.institute-directory-search button:hover {
+    background: #1d4ed8;
+}
+
+.institute-directory-filters {
+    display: flex;
+    gap: var(--institute-spacing);
+    margin-bottom: var(--institute-spacing-lg);
+    flex-wrap: wrap;
+}
+
+.institute-directory-filters select {
+    padding: var(--institute-spacing-sm) var(--institute-spacing);
+    border: 1px solid var(--institute-border);
+    border-radius: var(--institute-radius);
+    background: var(--institute-bg-primary);
+    font-size: 0.875rem;
+    min-width: 150px;
+}
+
+/* ==========================================================================
+   Statistics Styles
+   ========================================================================== */
+
+.institute-stats-wrapper {
+    display: grid;
+    gap: var(--institute-spacing-lg);
+    margin: var(--institute-spacing-lg) 0;
+}
+
+.institute-stats-cards {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.institute-stats-counters {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.institute-stat-item {
+    background: linear-gradient(135deg, var(--institute-primary), var(--institute-secondary));
+    color: white;
+    padding: var(--institute-spacing-lg);
+    border-radius: var(--institute-radius-lg);
+    text-align: center;
+    box-shadow: var(--institute-shadow-md);
+    transition: transform 0.3s ease;
+}
+
+.institute-stat-item:hover {
+    transform: translateY(-4px);
+}
+
+.institute-stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: var(--institute-spacing-sm);
+    display: block;
+}
+
+.institute-stat-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    opacity: 0.9;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* ==========================================================================
+   Utility Classes
+   ========================================================================== */
+
+.institute-no-results {
+    text-align: center;
+    color: var(--institute-text-muted);
+    font-style: italic;
+    padding: var(--institute-spacing-lg);
+    background: var(--institute-bg-secondary);
+    border-radius: var(--institute-radius);
+    margin: var(--institute-spacing-lg) 0;
+}
+
+.institute-loading {
+    text-align: center;
+    padding: var(--institute-spacing-lg);
+}
+
+.institute-loading::after {
+    content: "";
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--institute-border);
+    border-radius: 50%;
+    border-top-color: var(--institute-primary);
+    animation: institute-spin 1s ease-in-out infinite;
+}
+
+@keyframes institute-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   Status Badges
+   ========================================================================== */
+
+.institute-status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.institute-status-active {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.institute-status-inactive {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.institute-status-graduated {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.institute-status-suspended {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+/* ==========================================================================
+   Dark Mode Support
+   ========================================================================== */
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --institute-text-primary: #f9fafb;
+        --institute-text-secondary: #d1d5db;
+        --institute-text-muted: #9ca3af;
+        
+        --institute-bg-primary: #1f2937;
+        --institute-bg-secondary: #374151;
+        --institute-bg-tertiary: #4b5563;
+        
+        --institute-border: #4b5563;
+        --institute-border-light: #6b7280;
+        
+        --institute-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+        --institute-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+        --institute-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+    }
+}
+
+/* ==========================================================================
+   Print Styles
+   ========================================================================== */
+
+@media print {
+    .institute-directory-search,
+    .institute-directory-filters {
+        display: none;
+    }
+    
+    .institute-student-card,
+    .institute-staff-card {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #ccc;
+    }
+    
+    .institute-students-wrapper,
+    .institute-staff-wrapper {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+} 

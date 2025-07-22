@@ -1,0 +1,745 @@
+/**
+ * Institute Management Admin Styles
+ * Modern admin interface styling
+ */
+
+/* ==========================================================================
+   Variables
+   ========================================================================== */
+
+:root {
+    --institute-admin-primary: #2563eb;
+    --institute-admin-secondary: #7c3aed;
+    --institute-admin-success: #10b981;
+    --institute-admin-warning: #f59e0b;
+    --institute-admin-error: #ef4444;
+    
+    --institute-admin-bg: #f8fafc;
+    --institute-admin-card: #ffffff;
+    --institute-admin-border: #e2e8f0;
+    --institute-admin-text: #334155;
+    --institute-admin-text-light: #64748b;
+    
+    --institute-admin-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    --institute-admin-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    
+    --institute-admin-radius: 8px;
+    --institute-admin-spacing: 1rem;
+}
+
+/* ==========================================================================
+   Meta Box Styles
+   ========================================================================== */
+
+.institute-meta-table {
+    width: 100%;
+    border-spacing: 0;
+}
+
+.institute-meta-table th {
+    width: 25%;
+    padding: 15px 20px 15px 0;
+    vertical-align: top;
+    font-weight: 600;
+    color: var(--institute-admin-text);
+    border-bottom: 1px solid var(--institute-admin-border);
+}
+
+.institute-meta-table td {
+    padding: 15px 0;
+    border-bottom: 1px solid var(--institute-admin-border);
+}
+
+.institute-meta-table input[type="text"],
+.institute-meta-table input[type="email"],
+.institute-meta-table input[type="tel"],
+.institute-meta-table input[type="number"],
+.institute-meta-table input[type="date"],
+.institute-meta-table select,
+.institute-meta-table textarea {
+    width: 100%;
+    max-width: 400px;
+    padding: 8px 12px;
+    border: 1px solid var(--institute-admin-border);
+    border-radius: var(--institute-admin-radius);
+    font-size: 14px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.institute-meta-table input[type="text"]:focus,
+.institute-meta-table input[type="email"]:focus,
+.institute-meta-table input[type="tel"]:focus,
+.institute-meta-table input[type="number"]:focus,
+.institute-meta-table input[type="date"]:focus,
+.institute-meta-table select:focus,
+.institute-meta-table textarea:focus {
+    outline: none;
+    border-color: var(--institute-admin-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.institute-meta-table .description {
+    margin-top: 5px;
+    color: var(--institute-admin-text-light);
+    font-style: italic;
+    font-size: 13px;
+}
+
+.institute-meta-table .required {
+    color: var(--institute-admin-error);
+}
+
+/* Enhanced Meta Box Styling */
+#student_personal_info .inside,
+#student_academic_info .inside,
+#student_contact_info .inside,
+#staff_personal_info .inside,
+#staff_employment_info .inside,
+#staff_contact_info .inside {
+    padding: 0;
+    margin: 0;
+}
+
+#student_personal_info .institute-meta-table,
+#student_academic_info .institute-meta-table,
+#student_contact_info .institute-meta-table,
+#staff_personal_info .institute-meta-table,
+#staff_employment_info .institute-meta-table,
+#staff_contact_info .institute-meta-table {
+    padding: 20px;
+}
+
+/* ==========================================================================
+   List Table Enhancements
+   ========================================================================== */
+
+.wp-list-table .column-thumbnail {
+    width: 60px;
+}
+
+.wp-list-table .column-thumbnail img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.wp-list-table .column-student_id,
+.wp-list-table .column-staff_id {
+    font-family: monospace;
+    font-weight: 600;
+    color: var(--institute-admin-primary);
+}
+
+.wp-list-table .column-student_class,
+.wp-list-table .column-staff_department {
+    font-weight: 500;
+}
+
+.wp-list-table .dashicons {
+    color: var(--institute-admin-text-light);
+}
+
+/* Status indicators */
+.institute-status-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+}
+
+.institute-status-active {
+    background-color: var(--institute-admin-success);
+}
+
+.institute-status-inactive {
+    background-color: var(--institute-admin-text-light);
+}
+
+.institute-status-suspended {
+    background-color: var(--institute-admin-warning);
+}
+
+.institute-status-graduated {
+    background-color: var(--institute-admin-primary);
+}
+
+/* ==========================================================================
+   Dashboard Widgets
+   ========================================================================== */
+
+.institute-dashboard-widget {
+    background: var(--institute-admin-card);
+    border: 1px solid var(--institute-admin-border);
+    border-radius: var(--institute-admin-radius);
+    box-shadow: var(--institute-admin-shadow);
+    margin-bottom: var(--institute-admin-spacing);
+}
+
+.institute-dashboard-widget .widget-content {
+    padding: 20px;
+}
+
+.institute-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--institute-admin-spacing);
+    margin-bottom: var(--institute-admin-spacing);
+}
+
+.institute-stat-card {
+    background: linear-gradient(135deg, var(--institute-admin-primary), var(--institute-admin-secondary));
+    color: white;
+    padding: 20px;
+    border-radius: var(--institute-admin-radius);
+    text-align: center;
+    box-shadow: var(--institute-admin-shadow);
+}
+
+.institute-stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.institute-stat-label {
+    font-size: 0.875rem;
+    opacity: 0.9;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.institute-chart-container {
+    position: relative;
+    height: 300px;
+    margin-top: var(--institute-admin-spacing);
+}
+
+/* ==========================================================================
+   Settings Page
+   ========================================================================== */
+
+.institute-settings-wrapper {
+    max-width: 1200px;
+    margin: 20px 0;
+}
+
+.institute-settings-nav {
+    background: var(--institute-admin-card);
+    border: 1px solid var(--institute-admin-border);
+    border-radius: var(--institute-admin-radius);
+    padding: 0;
+    margin-bottom: var(--institute-admin-spacing);
+    overflow: hidden;
+}
+
+.institute-settings-nav ul {
+    display: flex;
+    margin: 0;
+    list-style: none;
+}
+
+.institute-settings-nav li {
+    margin: 0;
+}
+
+.institute-settings-nav a {
+    display: block;
+    padding: 15px 20px;
+    text-decoration: none;
+    color: var(--institute-admin-text);
+    border-right: 1px solid var(--institute-admin-border);
+    transition: background-color 0.2s ease;
+}
+
+.institute-settings-nav a:hover,
+.institute-settings-nav a.nav-tab-active {
+    background: var(--institute-admin-bg);
+    color: var(--institute-admin-primary);
+}
+
+.institute-settings-content {
+    background: var(--institute-admin-card);
+    border: 1px solid var(--institute-admin-border);
+    border-radius: var(--institute-admin-radius);
+    padding: 30px;
+    box-shadow: var(--institute-admin-shadow);
+}
+
+.institute-form-group {
+    margin-bottom: 25px;
+}
+
+.institute-form-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--institute-admin-text);
+}
+
+.institute-form-input {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px 15px;
+    border: 1px solid var(--institute-admin-border);
+    border-radius: var(--institute-admin-radius);
+    font-size: 14px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.institute-form-input:focus {
+    outline: none;
+    border-color: var(--institute-admin-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.institute-form-description {
+    margin-top: 8px;
+    color: var(--institute-admin-text-light);
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+/* ==========================================================================
+   Import/Export Interface
+   ========================================================================== */
+
+.institute-import-export {
+    background: var(--institute-admin-card);
+    border: 1px solid var(--institute-admin-border);
+    border-radius: var(--institute-admin-radius);
+    padding: 30px;
+    box-shadow: var(--institute-admin-shadow);
+}
+
+.institute-file-upload {
+    border: 2px dashed var(--institute-admin-border);
+    border-radius: var(--institute-admin-radius);
+    padding: 40px;
+    text-align: center;
+    transition: border-color 0.2s ease;
+}
+
+.institute-file-upload:hover {
+    border-color: var(--institute-admin-primary);
+}
+
+.institute-file-upload.dragover {
+    border-color: var(--institute-admin-primary);
+    background: rgba(37, 99, 235, 0.05);
+}
+
+.institute-upload-icon {
+    font-size: 3rem;
+    color: var(--institute-admin-text-light);
+    margin-bottom: 15px;
+}
+
+.institute-upload-text {
+    color: var(--institute-admin-text);
+    margin-bottom: 15px;
+}
+
+.institute-upload-button {
+    background: var(--institute-admin-primary);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: var(--institute-admin-radius);
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+}
+
+.institute-upload-button:hover {
+    background: #1d4ed8;
+}
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+
+.institute-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--institute-admin-radius);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.institute-btn-primary {
+    background: var(--institute-admin-primary);
+    color: white;
+}
+
+.institute-btn-primary:hover {
+    background: #1d4ed8;
+    color: white;
+}
+
+.institute-btn-secondary {
+    background: var(--institute-admin-text-light);
+    color: white;
+}
+
+.institute-btn-secondary:hover {
+    background: #475569;
+    color: white;
+}
+
+.institute-btn-success {
+    background: var(--institute-admin-success);
+    color: white;
+}
+
+.institute-btn-success:hover {
+    background: #059669;
+    color: white;
+}
+
+.institute-btn-warning {
+    background: var(--institute-admin-warning);
+    color: white;
+}
+
+.institute-btn-warning:hover {
+    background: #d97706;
+    color: white;
+}
+
+.institute-btn-danger {
+    background: var(--institute-admin-error);
+    color: white;
+}
+
+.institute-btn-danger:hover {
+    background: #dc2626;
+    color: white;
+}
+
+/* ==========================================================================
+   Notifications
+   ========================================================================== */
+
+.institute-notice {
+    padding: 15px 20px;
+    margin: 20px 0;
+    border-radius: var(--institute-admin-radius);
+    border-left: 4px solid;
+}
+
+.institute-notice-success {
+    background: #f0fdf4;
+    border-left-color: var(--institute-admin-success);
+    color: #166534;
+}
+
+.institute-notice-warning {
+    background: #fffbeb;
+    border-left-color: var(--institute-admin-warning);
+    color: #92400e;
+}
+
+.institute-notice-error {
+    background: #fef2f2;
+    border-left-color: var(--institute-admin-error);
+    color: #991b1b;
+}
+
+.institute-notice-info {
+    background: #eff6ff;
+    border-left-color: var(--institute-admin-primary);
+    color: #1e40af;
+}
+
+/* ==========================================================================
+   Loading States
+   ========================================================================== */
+
+.institute-loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--institute-admin-border);
+    border-radius: 50%;
+    border-top-color: var(--institute-admin-primary);
+    animation: institute-spin 1s ease-in-out infinite;
+}
+
+@keyframes institute-spin {
+    to { transform: rotate(360deg); }
+}
+
+.institute-loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+/* ==========================================================================
+   Responsive Design
+   ========================================================================== */
+
+@media (max-width: 782px) {
+    .institute-meta-table th {
+        width: 100%;
+        padding-bottom: 5px;
+    }
+    
+    .institute-meta-table td {
+        padding-top: 5px;
+        padding-bottom: 15px;
+    }
+    
+    .institute-stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .institute-settings-nav ul {
+        flex-direction: column;
+    }
+    
+    .institute-settings-nav a {
+        border-right: none;
+        border-bottom: 1px solid var(--institute-admin-border);
+    }
+    
+    .institute-settings-content {
+        padding: 20px;
+    }
+}
+
+/* ==========================================================================
+   Dark Mode Support
+   ========================================================================== */
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --institute-admin-bg: #1f2937;
+        --institute-admin-card: #374151;
+        --institute-admin-border: #4b5563;
+        --institute-admin-text: #f9fafb;
+        --institute-admin-text-light: #d1d5db;
+    }
+}
+
+/* ==========================================================================
+   Settings Page Navigation
+   ========================================================================== */
+
+.institute-settings-nav ul {
+    display: flex;
+    list-style: none;
+    margin: 0 0 2rem 0;
+    padding: 0;
+    background: #f8fafc;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.institute-settings-nav li {
+    flex: 1;
+}
+
+.institute-settings-nav a {
+    display: block;
+    padding: 1rem 1.5rem;
+    text-decoration: none;
+    color: #64748b;
+    font-weight: 600;
+    text-align: center;
+    border-right: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.institute-settings-nav a:hover {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+.institute-settings-nav a.nav-tab-active {
+    background: var(--institute-admin-primary, #2563eb);
+    color: white;
+}
+
+.institute-settings-nav li:last-child a {
+    border-right: none;
+}
+
+/* ==========================================================================
+   Settings Form Groups
+   ========================================================================== */
+
+.institute-form-group {
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    border-left: 4px solid var(--institute-admin-primary, #2563eb);
+}
+
+.institute-form-label {
+    display: block;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.institute-form-input {
+    width: 100%;
+    max-width: 500px;
+    padding: 0.75rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.institute-form-input:focus {
+    outline: none;
+    border-color: var(--institute-admin-primary, #2563eb);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.institute-form-description {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: #6b7280;
+    line-height: 1.5;
+}
+
+/* Checkbox styling */
+.institute-form-label input[type="checkbox"] {
+    margin-right: 0.5rem;
+    transform: scale(1.2);
+    accent-color: var(--institute-admin-primary, #2563eb);
+}
+
+/* ==========================================================================
+   Settings Notice Boxes
+   ========================================================================== */
+
+.institute-notice {
+    padding: 1rem 1.5rem;
+    border-radius: 6px;
+    margin: 1rem 0;
+    border-left: 4px solid;
+}
+
+.institute-notice-info {
+    background: #eff6ff;
+    border-left-color: #3b82f6;
+    color: #1e40af;
+}
+
+.institute-notice-success {
+    background: #f0fdf4;
+    border-left-color: #10b981;
+    color: #047857;
+}
+
+.institute-notice-warning {
+    background: #fffbeb;
+    border-left-color: #f59e0b;
+    color: #d97706;
+}
+
+.institute-notice ul {
+    margin: 0.5rem 0 0 1rem;
+}
+
+/* ==========================================================================
+   Settings Action Buttons
+   ========================================================================== */
+
+.institute-btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.875rem;
+    margin-right: 0.5rem;
+}
+
+.institute-btn-primary {
+    background: var(--institute-admin-primary, #2563eb);
+    color: white;
+}
+
+.institute-btn-primary:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.institute-btn-secondary {
+    background: #6b7280;
+    color: white;
+}
+
+.institute-btn-secondary:hover {
+    background: #374151;
+}
+
+/* ==========================================================================
+   Settings Content Sections
+   ========================================================================== */
+
+.institute-settings-content h2 {
+    color: var(--institute-admin-primary, #2563eb);
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 0.5rem;
+    margin-bottom: 2rem;
+    font-size: 1.5rem;
+}
+
+.institute-settings-content h3 {
+    color: #374151;
+    margin: 2rem 0 1rem 0;
+    font-size: 1.25rem;
+    border-left: 4px solid var(--institute-admin-primary, #2563eb);
+    padding-left: 1rem;
+}
+
+/* ==========================================================================
+   Template Actions Section
+   ========================================================================== */
+
+.institute-template-actions {
+    background: #f8fafc;
+    padding: 2rem;
+    border-radius: 8px;
+    margin-top: 2rem;
+    border: 2px dashed #cbd5e1;
+}
+
+.institute-template-actions h3 {
+    margin-top: 0;
+    color: #475569;
+}
+
+.institute-template-actions p {
+    margin-bottom: 1rem;
+} 

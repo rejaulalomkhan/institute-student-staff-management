@@ -1,0 +1,145 @@
+/**
+ * Institute Management Plugin Legacy Styles
+ * Backwards compatibility for existing installations
+ * Use frontend.css for new implementations
+ */
+
+/* Students Grid */
+.students-grid, .staff-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+/* Student Card */
+.student-card, .staff-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.student-card:hover, .staff-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* Photo styling */
+.student-photo, .staff-photo {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.student-photo img, .staff-photo img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #f0f0f0;
+}
+
+/* Card title */
+.student-card h3, .staff-card h3 {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 1.2em;
+    text-align: center;
+}
+
+/* Card content */
+.student-card p, .staff-card p {
+    margin: 8px 0;
+    color: #666;
+    font-size: 14px;
+}
+
+.student-card strong, .staff-card strong {
+    color: #333;
+}
+
+/* Description */
+.student-description {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+    color: #666;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Archive pages */
+.post-type-archive-student .site-main,
+.post-type-archive-staff .site-main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Single student/staff pages */
+.single-student .entry-content,
+.single-staff .entry-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.single-student .post-thumbnail,
+.single-staff .post-thumbnail {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.single-student .post-thumbnail img,
+.single-staff .post-thumbnail img {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 5px solid #f0f0f0;
+}
+
+/* Meta information */
+.student-meta, .staff-meta {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.student-meta h4, .staff-meta h4 {
+    margin-top: 0;
+    color: #333;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 10px;
+}
+
+.student-meta p, .staff-meta p {
+    margin: 10px 0;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .students-grid, .staff-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .student-card, .staff-card {
+        margin: 10px 0;
+    }
+}
+
+/* Admin styles */
+.post-type-student .form-table th,
+.post-type-staff .form-table th {
+    width: 150px;
+}
+
+.post-type-student .form-table input[type="text"],
+.post-type-student .form-table input[type="tel"],
+.post-type-staff .form-table input[type="text"],
+.post-type-staff .form-table input[type="tel"] {
+    width: 100%;
+    max-width: 400px;
+}
