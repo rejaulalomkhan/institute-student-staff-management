@@ -405,6 +405,64 @@ class Admin_Menu {
             </label>
             <div class="institute-form-description"><?php _e('Frontend submissions require admin approval before publication.', 'institute-management'); ?></div>
         </div>
+        
+        <h3><?php _e('Personal Information Privacy', 'institute-management'); ?></h3>
+        <p class="institute-form-description"><?php _e('Control which personal information fields are visible to public (non-logged-in) users on student profile pages.', 'institute-management'); ?></p>
+        
+        <div class="institute-form-group">
+            <label class="institute-form-label"><?php _e('Personal Information Visible to Public:', 'institute-management'); ?></label>
+            <div class="institute-checkbox-group">
+                <label class="institute-checkbox-item">
+                    <input type="checkbox" name="public_fields[]" value="phone" <?php checked(in_array('phone', $settings['public_fields'] ?? array()), true); ?> />
+                    <?php _e('Phone Number', 'institute-management'); ?>
+                </label>
+                <label class="institute-checkbox-item">
+                    <input type="checkbox" name="public_fields[]" value="email" <?php checked(in_array('email', $settings['public_fields'] ?? array()), true); ?> />
+                    <?php _e('Email Address', 'institute-management'); ?>
+                </label>
+                <label class="institute-checkbox-item">
+                    <input type="checkbox" name="public_fields[]" value="dob" <?php checked(in_array('dob', $settings['public_fields'] ?? array()), true); ?> />
+                    <?php _e('Date of Birth', 'institute-management'); ?>
+                </label>
+                <label class="institute-checkbox-item">
+                    <input type="checkbox" name="public_fields[]" value="gender" <?php checked(in_array('gender', $settings['public_fields'] ?? array()), true); ?> />
+                    <?php _e('Gender', 'institute-management'); ?>
+                </label>
+                <label class="institute-checkbox-item">
+                    <input type="checkbox" name="public_fields[]" value="address" <?php checked(in_array('address', $settings['public_fields'] ?? array()), true); ?> />
+                    <?php _e('Address', 'institute-management'); ?>
+                </label>
+                <label class="institute-checkbox-item">
+                    <input type="checkbox" name="public_fields[]" value="blood_group" <?php checked(in_array('blood_group', $settings['public_fields'] ?? array()), true); ?> />
+                    <?php _e('Blood Group', 'institute-management'); ?>
+                </label>
+                <label class="institute-checkbox-item">
+                    <input type="checkbox" name="public_fields[]" value="religion" <?php checked(in_array('religion', $settings['public_fields'] ?? array()), true); ?> />
+                    <?php _e('Religion', 'institute-management'); ?>
+                </label>
+                <label class="institute-checkbox-item">
+                    <input type="checkbox" name="public_fields[]" value="nationality" <?php checked(in_array('nationality', $settings['public_fields'] ?? array()), true); ?> />
+                    <?php _e('Nationality', 'institute-management'); ?>
+                </label>
+                <label class="institute-checkbox-item">
+                    <input type="checkbox" name="public_fields[]" value="father_name" <?php checked(in_array('father_name', $settings['public_fields'] ?? array()), true); ?> />
+                    <?php _e('Father\'s Name', 'institute-management'); ?>
+                </label>
+                <label class="institute-checkbox-item">
+                    <input type="checkbox" name="public_fields[]" value="mother_name" <?php checked(in_array('mother_name', $settings['public_fields'] ?? array()), true); ?> />
+                    <?php _e('Mother\'s Name', 'institute-management'); ?>
+                </label>
+            </div>
+            <div class="institute-form-description"><?php _e('Unchecked fields will only be visible to logged-in users. Guardian information is always private.', 'institute-management'); ?></div>
+        </div>
+        
+        <div class="institute-form-group">
+            <label class="institute-form-label">
+                <input type="checkbox" name="show_privacy_notice" value="1" <?php checked($settings['show_privacy_notice'] ?? true, 1); ?> />
+                <?php _e('Show Privacy Notice', 'institute-management'); ?>
+            </label>
+            <div class="institute-form-description"><?php _e('Display a notice when some personal information is hidden for privacy.', 'institute-management'); ?></div>
+        </div>
         <?php
     }
     
@@ -546,6 +604,12 @@ class Admin_Menu {
         $settings['staff_management_capability'] = sanitize_text_field($_POST['staff_management_capability'] ?? 'manage_options');
         $settings['allow_frontend_submission'] = isset($_POST['allow_frontend_submission']) ? 1 : 0;
         $settings['require_approval'] = isset($_POST['require_approval']) ? 1 : 0;
+        
+        // Privacy settings
+        $public_fields = $_POST['public_fields'] ?? array();
+        $allowed_fields = array('phone', 'email', 'dob', 'gender', 'address', 'blood_group', 'religion', 'nationality', 'father_name', 'mother_name');
+        $settings['public_fields'] = array_intersect($public_fields, $allowed_fields);
+        $settings['show_privacy_notice'] = isset($_POST['show_privacy_notice']) ? 1 : 0;
         
         // Template settings
         $settings['create_archive_pages'] = isset($_POST['create_archive_pages']) ? 1 : 0;

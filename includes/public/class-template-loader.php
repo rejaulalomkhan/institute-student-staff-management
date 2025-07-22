@@ -90,7 +90,10 @@ class Template_Loader {
      */
     public function enqueue_template_assets() {
         if ($this->is_institute_page()) {
-            wp_enqueue_style('institute-template-css', INSTITUTE_MANAGEMENT_PLUGIN_URL . 'assets/css/templates.css', array(), INSTITUTE_MANAGEMENT_VERSION);
+            // Enqueue Dashicons for frontend use (icons)
+            wp_enqueue_style('dashicons');
+            
+            wp_enqueue_style('institute-template-css', INSTITUTE_MANAGEMENT_PLUGIN_URL . 'assets/css/templates.css', array('dashicons'), INSTITUTE_MANAGEMENT_VERSION);
             wp_enqueue_script('institute-template-js', INSTITUTE_MANAGEMENT_PLUGIN_URL . 'assets/js/templates.js', array('jquery'), INSTITUTE_MANAGEMENT_VERSION, true);
             
             wp_localize_script('institute-template-js', 'institute_templates', array(

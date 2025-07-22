@@ -742,4 +742,48 @@
 
 .institute-template-actions p {
     margin-bottom: 1rem;
+}
+
+/* ==========================================================================
+   Privacy Settings Styling
+   ========================================================================== */
+
+.institute-checkbox-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+.institute-checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+}
+
+.institute-checkbox-item:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+}
+
+.institute-checkbox-item input[type="checkbox"] {
+    margin: 0;
+    cursor: pointer;
+}
+
+.institute-checkbox-item:has(input[type="checkbox"]:checked) {
+    background: #dbeafe;
+    border-color: #3b82f6;
+    color: #1e40af;
 } 
