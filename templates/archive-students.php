@@ -17,10 +17,7 @@ $enable_filters = $settings['enable_filters'] ?? true;
     <div class="institute-archive-header">
         <div class="container">
             <h1 class="institute-archive-title">
-                <?php _e('Our Students', 'institute-management'); ?>
-                <?php if ($institute_name): ?>
-                    <span class="institute-subtitle"><?php echo esc_html($institute_name); ?></span>
-                <?php endif; ?>
+                <span class="english-subtitle" style="color: #fff;"><?php _e('আমাদের ছাত্র-ছাত্রীরা', 'institute-management'); ?></span>                
             </h1>
             
             <?php if (have_posts()): ?>

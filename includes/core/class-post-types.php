@@ -131,7 +131,7 @@ class Post_Types {
             'description'        => __('Staff profiles and information', 'institute-management'),
             'labels'             => $labels,
             'supports'           => array('title', 'editor', 'thumbnail', 'custom-fields', 'revisions'),
-            'taxonomies'         => array('staff_department'),
+            'taxonomies'         => array('staff_department', 'staff_role'),
             'hierarchical'       => false,
             'public'             => true,
             'show_ui'            => true,

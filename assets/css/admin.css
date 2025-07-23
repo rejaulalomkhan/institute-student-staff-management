@@ -786,4 +786,235 @@
     background: #dbeafe;
     border-color: #3b82f6;
     color: #1e40af;
+}
+
+/* ==========================================================================
+   Staff Roles Meta Box Styling
+   ========================================================================== */
+
+#staff_rolediv .inside {
+    margin: 0;
+    padding: 0;
+}
+
+#staff_rolediv .categorydiv {
+    border: none;
+}
+
+#staff_role-all {
+    border: none;
+    padding: 15px;
+    background: #f9fafb;
+}
+
+#staff_rolechecklist {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+}
+
+#staff_rolechecklist li {
+    margin: 0;
+    padding: 12px 15px;
+    background: white;
+    border-radius: 8px;
+    border: 2px solid #e5e7eb;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+#staff_rolechecklist li:hover {
+    border-color: #3b82f6;
+    background: #f0f9ff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+#staff_rolechecklist li.selected {
+    border-color: #2563eb;
+    background: #dbeafe;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+#staff_rolechecklist label {
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    color: #374151;
+    cursor: pointer;
+    margin: 0;
+    font-family: 'SolaimanLipi', 'Kalpurush', 'Nikosh', 'Akaash', Arial, sans-serif;
+    font-size: 14px;
+}
+
+#staff_rolechecklist input[type="checkbox"] {
+    margin-right: 12px;
+    transform: scale(1.2);
+    accent-color: #2563eb;
+    cursor: pointer;
+}
+
+#staff_rolechecklist li.selected label {
+    color: #1e40af;
+}
+
+/* Staff Roles Add New Section */
+#staff_role-add {
+    border-top: 2px solid #e5e7eb;
+    padding: 20px 15px 15px;
+    background: #f8fafc;
+    margin-top: 10px;
+}
+
+#staff_role-add h4 {
+    margin: 0 0 12px 0;
+    font-size: 13px;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+}
+
+#newstaff_role {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid #e5e7eb;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: 'SolaimanLipi', 'Kalpurush', 'Nikosh', 'Akaash', Arial, sans-serif;
+    transition: border-color 0.2s ease;
+}
+
+#newstaff_role:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+#staff_role-add-submit {
+    margin-top: 10px;
+    padding: 8px 16px;
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+#staff_role-add-submit:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+/* Staff Roles Tab Styling */
+#staff_role-tabs {
+    overflow: hidden;
+    border-bottom: 2px solid #e5e7eb;
+    background: white;
+    margin-bottom: 0;
+}
+
+#staff_role-tabs li {
+    float: left;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+#staff_role-tabs a {
+    display: block;
+    padding: 12px 20px;
+    text-decoration: none;
+    color: #6b7280;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+#staff_role-tabs a:hover {
+    color: #374151;
+    background: #f9fafb;
+}
+
+#staff_role-tabs .tabs a.current {
+    color: #2563eb;
+    border-bottom-color: #2563eb;
+    background: #f0f9ff;
+    font-weight: 600;
+}
+
+/* Enhanced Visual Feedback */
+#staff_rolediv {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+#staff_rolediv .hndle {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    color: white;
+    border: none;
+    padding: 15px 20px;
+    font-weight: 600;
+}
+
+#staff_rolediv .hndle button {
+    color: white;
+}
+
+/* Special styling for popular/most used roles */
+#staff_rolechecklist li.popular-category {
+    border-color: #10b981;
+    background: #ecfdf5;
+}
+
+#staff_rolechecklist li.popular-category:hover {
+    border-color: #059669;
+    background: #d1fae5;
+}
+
+#staff_rolechecklist li.popular-category label {
+    color: #047857;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    #staff_rolechecklist li {
+        padding: 10px;
+    }
+    
+    #staff_role-tabs a {
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+    
+    #staff_role-all {
+        padding: 10px;
+    }
+    
+    #staff_rolechecklist label {
+        font-size: 13px;
+    }
+}
+
+/* Animation for better UX */
+@keyframes staff-role-added {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+#staff_rolechecklist li.newly-added {
+    animation: staff-role-added 0.3s ease-out;
 } 

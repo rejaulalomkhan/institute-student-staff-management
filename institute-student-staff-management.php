@@ -123,6 +123,12 @@ final class Institute_Management {
         if (!$this->check_requirements()) {
             return;
         }
+        
+        // Flush rewrite rules if needed (for taxonomy structure changes)
+        if (get_option('institute_management_flush_rewrite_rules')) {
+            flush_rewrite_rules();
+            delete_option('institute_management_flush_rewrite_rules');
+        }
     }
     
     /**
@@ -169,6 +175,12 @@ final class Institute_Management {
         
         // Set default options
         $this->set_default_options();
+        
+        // Mark that we need to flush rewrite rules for taxonomy changes
+        update_option('institute_management_flush_rewrite_rules', true);
+        
+        // Force flush for URL structure changes
+        flush_rewrite_rules(true);
         
         // Schedule events
         if (!wp_next_scheduled('institute_management_daily_cleanup')) {

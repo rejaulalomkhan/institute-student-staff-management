@@ -18,7 +18,7 @@
     padding: 3rem 0 2rem;
     background: linear-gradient(135deg, var(--institute-primary, #2563eb), var(--institute-secondary, #7c3aed));
     color: white;
-    margin: -20px -20px 2rem -20px;
+    /* margin: -20px -20px 2rem -20px; */
     border-radius: 0 0 15px 15px;
 }
 

@@ -32,6 +32,10 @@ class Template_Loader {
         add_action('wp_ajax_nopriv_institute_directory_filter', array($this, 'handle_directory_filter'));
         add_action('wp_ajax_institute_students_top_filter', array($this, 'handle_students_top_filter'));
         add_action('wp_ajax_nopriv_institute_students_top_filter', array($this, 'handle_students_top_filter'));
+        add_action('wp_ajax_institute_staff_top_filter', array($this, 'handle_staff_top_filter'));
+        add_action('wp_ajax_nopriv_institute_staff_top_filter', array($this, 'handle_staff_top_filter'));
+        add_action('wp_ajax_institute_staff_role_filter', array($this, 'handle_staff_role_filter'));
+        add_action('wp_ajax_nopriv_institute_staff_role_filter', array($this, 'handle_staff_role_filter'));
     }
     
     /**
@@ -58,7 +62,9 @@ class Template_Loader {
             $custom_template = $this->locate_template('archive-students.php');
         } elseif (is_post_type_archive('staff')) {
             $custom_template = $this->locate_template('archive-staff.php');
-        } elseif (is_tax(array('student_class', 'staff_department', 'student_batch', 'staff_role'))) {
+        } elseif (is_tax('staff_role') || get_query_var('staff_role')) {
+            $custom_template = $this->locate_template('taxonomy-staff_role.php');
+        } elseif (is_tax(array('student_class', 'staff_department', 'student_batch'))) {
             $custom_template = $this->locate_template('taxonomy-institute.php');
         }
         
@@ -981,5 +987,540 @@ class Template_Loader {
         echo '</td>';
         
         echo '</tr>';
+    }
+    
+    /**
+     * Handle staff top filter AJAX request
+     */
+    public function handle_staff_top_filter() {
+        // Don't check nonce for public access
+        // check_ajax_referer('institute_management_nonce', 'nonce');
+        
+        $department = sanitize_text_field($_POST['department'] ?? '');
+        $status = sanitize_text_field($_POST['status'] ?? '');
+        $search = sanitize_text_field($_POST['search'] ?? '');
+        
+        // Build query args
+        $args = array(
+            'post_type' => 'staff',
+            'posts_per_page' => -1,
+            'post_status' => 'publish',
+            'orderby' => 'title',
+            'order' => 'ASC'
+        );
+        
+        // Add search query
+        if (!empty($search)) {
+            $args['s'] = $search;
+            
+            // Also search in meta fields
+            $args['meta_query'] = array(
+                'relation' => 'OR',
+                array(
+                    'key' => '_staff_id',
+                    'value' => $search,
+                    'compare' => 'LIKE'
+                ),
+                array(
+                    'key' => '_staff_phone',
+                    'value' => $search,
+                    'compare' => 'LIKE'
+                ),
+                array(
+                    'key' => '_staff_position',
+                    'value' => $search,
+                    'compare' => 'LIKE'
+                )
+            );
+        }
+
+        $meta_query = array('relation' => 'AND');
+        $tax_query = array('relation' => 'AND');
+        
+        // Filter by department
+        if (!empty($department)) {
+            $tax_query[] = array(
+                'taxonomy' => 'staff_department',
+                'field' => 'slug',
+                'terms' => $department
+            );
+        }
+        
+        // Filter by status
+        if (!empty($status)) {
+            $meta_query[] = array(
+                'key' => '_staff_status',
+                'value' => $status,
+                'compare' => '='
+            );
+        }
+        
+        // Combine meta queries if we have both search and status
+        if (!empty($search) && !empty($status)) {
+            $args['meta_query'] = array(
+                'relation' => 'AND',
+                array(
+                    'relation' => 'OR',
+                    array(
+                        'key' => '_staff_id',
+                        'value' => $search,
+                        'compare' => 'LIKE'
+                    ),
+                    array(
+                        'key' => '_staff_phone',
+                        'value' => $search,
+                        'compare' => 'LIKE'
+                    ),
+                    array(
+                        'key' => '_staff_position',
+                        'value' => $search,
+                        'compare' => 'LIKE'
+                    )
+                ),
+                array(
+                    'key' => '_staff_status',
+                    'value' => $status,
+                    'compare' => '='
+                )
+            );
+        } elseif (!empty($meta_query) && count($meta_query) > 1) {
+            $args['meta_query'] = $meta_query;
+        }
+
+        if (!empty($tax_query) && count($tax_query) > 1) {
+            $args['tax_query'] = $tax_query;
+        }
+        
+        $staff = get_posts($args);
+        
+        ob_start();
+        
+        // Render results in both table and grid format
+        echo '<div class="institute-staff-table">';
+        echo '<div class="institute-table-wrapper">';
+        echo '<table class="institute-data-table staff-data-table">';
+        echo '<thead>';
+        echo '<tr>';
+        echo '<th class="institute-th-serial">' . __('S.No', 'institute-management') . '</th>';
+        echo '<th class="institute-th-photo">' . __('Image', 'institute-management') . '</th>';
+        echo '<th class="institute-th-name">' . __('Teacher Name', 'institute-management') . '</th>';
+        echo '<th class="institute-th-mobile">' . __('Mobile Number', 'institute-management') . '</th>';
+        echo '<th class="institute-th-designation">' . __('Designation', 'institute-management') . '</th>';
+        echo '<th class="institute-th-department">' . __('Department', 'institute-management') . '</th>';
+        echo '<th class="institute-th-status">' . __('Status', 'institute-management') . '</th>';
+        echo '<th class="institute-th-actions">' . __('Actions', 'institute-management') . '</th>';
+        echo '</tr>';
+        echo '</thead>';
+        echo '<tbody>';
+        
+        if (!empty($staff)) {
+            $serial = 1;
+            foreach ($staff as $staff_member) {
+                $this->render_staff_table_row($staff_member, $serial++);
+            }
+        } else {
+            echo '<tr><td colspan="8" style="text-align: center; padding: 20px;">';
+            echo __('No staff members found matching your criteria.', 'institute-management');
+            echo '</td></tr>';
+        }
+        
+        echo '</tbody>';
+        echo '</table>';
+        echo '</div>';
+        echo '</div>';
+        
+        // Grid view (hidden by default)
+        echo '<div class="institute-staff-grid institute-grid institute-columns-3" style="display: none;">';
+        
+        if (!empty($staff)) {
+            foreach ($staff as $staff_member) {
+                $this->render_staff_grid_card($staff_member);
+            }
+        } else {
+            echo '<div class="institute-no-results">';
+            echo '<p>' . __('No staff members found matching your criteria.', 'institute-management') . '</p>';
+            echo '</div>';
+        }
+        
+        echo '</div>';
+        
+        $html = ob_get_clean();
+        
+        wp_send_json_success($html);
+    }
+    
+    /**
+     * Render staff table row
+     */
+    private function render_staff_table_row($staff_member, $serial) {
+        $staff_id = get_post_meta($staff_member->ID, '_staff_id', true);
+        $position = get_post_meta($staff_member->ID, '_staff_position', true);
+        $phone = get_post_meta($staff_member->ID, '_staff_phone', true);
+        $email = get_post_meta($staff_member->ID, '_staff_email', true);
+        $status = get_post_meta($staff_member->ID, '_staff_status', true);
+        $departments = get_the_terms($staff_member->ID, 'staff_department');
+        
+        // Format phone number
+        $formatted_phone = $phone;
+        if ($phone && !empty($phone)) {
+            if (strlen($phone) > 6) {
+                $formatted_phone = substr($phone, 0, 3) . 'XXXXXXXX';
+            }
+        }
+        
+        echo '<tr class="institute-staff-row" data-staff-id="' . esc_attr($staff_id) . '">';
+        
+        // Serial Number
+        echo '<td class="institute-td-serial">' . $serial . '</td>';
+        
+        // Photo
+        echo '<td class="institute-td-photo">';
+        if (has_post_thumbnail($staff_member->ID)) {
+            echo '<div class="institute-table-photo staff-photo">';
+            echo '<a href="' . get_permalink($staff_member->ID) . '">';
+            echo get_the_post_thumbnail($staff_member->ID, 'thumbnail', array('class' => 'staff-table-photo'));
+            echo '</a>';
+            echo '</div>';
+        } else {
+            echo '<div class="institute-table-avatar staff-avatar">';
+            echo '<span class="dashicons dashicons-businessperson"></span>';
+            echo '</div>';
+        }
+        echo '</td>';
+        
+        // Name
+        echo '<td class="institute-td-name">';
+        echo '<div class="institute-name-cell">';
+        echo '<a href="' . get_permalink($staff_member->ID) . '" class="institute-staff-name">' . esc_html($staff_member->post_title) . '</a>';
+        if ($staff_id) {
+            echo '<span class="institute-staff-id">' . __('ID:', 'institute-management') . ' ' . esc_html($staff_id) . '</span>';
+        }
+        echo '</div>';
+        echo '</td>';
+        
+        // Mobile Number
+        echo '<td class="institute-td-mobile">';
+        if ($phone) {
+            echo '<span class="institute-phone-number">' . esc_html($formatted_phone) . '</span>';
+        } else {
+            echo '<span class="institute-no-data">-</span>';
+        }
+        echo '</td>';
+        
+        // Designation/Position
+        echo '<td class="institute-td-designation">';
+        if ($position) {
+            echo '<span class="institute-position">' . esc_html($position) . '</span>';
+        } else {
+            echo '<span class="institute-no-data">-</span>';
+        }
+        echo '</td>';
+        
+        // Department
+        echo '<td class="institute-td-department">';
+        if ($departments && !is_wp_error($departments)) {
+            $dept_names = wp_list_pluck($departments, 'name');
+            echo esc_html(implode(', ', $dept_names));
+        } else {
+            echo '<span class="institute-no-data">-</span>';
+        }
+        echo '</td>';
+        
+        // Status
+        echo '<td class="institute-td-status">';
+        if ($status) {
+            echo '<span class="institute-status-badge institute-status-' . esc_attr($status) . '">';
+            echo esc_html(ucfirst($status));
+            echo '</span>';
+        } else {
+            echo '<span class="institute-status-badge institute-status-active">';
+            echo __('Active', 'institute-management');
+            echo '</span>';
+        }
+        echo '</td>';
+        
+        // Actions
+        echo '<td class="institute-td-actions">';
+        echo '<div class="institute-table-actions">';
+        echo '<a href="' . get_permalink($staff_member->ID) . '" class="institute-btn institute-btn-sm institute-btn-primary" title="' . __('View Profile', 'institute-management') . '">';
+        echo '<span class="dashicons dashicons-visibility"></span>';
+        echo '</a>';
+        if (current_user_can('edit_posts')) {
+            echo '<a href="' . get_edit_post_link($staff_member->ID) . '" class="institute-btn institute-btn-sm institute-btn-secondary" title="' . __('Edit', 'institute-management') . '">';
+            echo '<span class="dashicons dashicons-edit"></span>';
+            echo '</a>';
+        }
+        if ($phone && !empty($phone)) {
+            echo '<a href="tel:' . esc_attr($phone) . '" class="institute-btn institute-btn-sm institute-btn-success" title="' . __('Call', 'institute-management') . '">';
+            echo '<span class="dashicons dashicons-phone"></span>';
+            echo '</a>';
+        }
+        if ($email && !empty($email)) {
+            echo '<a href="mailto:' . esc_attr($email) . '" class="institute-btn institute-btn-sm institute-btn-info" title="' . __('Email', 'institute-management') . '">';
+            echo '<span class="dashicons dashicons-email"></span>';
+            echo '</a>';
+        }
+        echo '</div>';
+        echo '</td>';
+        
+        echo '</tr>';
+    }
+    
+    /**
+     * Render staff grid card
+     */
+    private function render_staff_grid_card($staff_member) {
+        $staff_id = get_post_meta($staff_member->ID, '_staff_id', true);
+        $position = get_post_meta($staff_member->ID, '_staff_position', true);
+        $phone = get_post_meta($staff_member->ID, '_staff_phone', true);
+        $email = get_post_meta($staff_member->ID, '_staff_email', true);
+        $status = get_post_meta($staff_member->ID, '_staff_status', true);
+        $departments = get_the_terms($staff_member->ID, 'staff_department');
+        
+        echo '<article class="institute-staff-card" data-staff-id="' . esc_attr($staff_id) . '">';
+        
+        // Staff Photo
+        echo '<div class="institute-card-photo">';
+        if (has_post_thumbnail($staff_member->ID)) {
+            echo '<a href="' . get_permalink($staff_member->ID) . '">';
+            echo get_the_post_thumbnail($staff_member->ID, 'medium', array('class' => 'staff-photo'));
+            echo '</a>';
+        } else {
+            echo '<div class="institute-default-avatar">';
+            echo '<span class="dashicons dashicons-businessperson"></span>';
+            echo '</div>';
+        }
+        
+        // Status Badge
+        if ($status) {
+            echo '<span class="institute-status-badge institute-status-' . esc_attr($status) . '">';
+            echo esc_html(ucfirst($status));
+            echo '</span>';
+        }
+        echo '</div>';
+        
+        // Staff Info
+        echo '<div class="institute-card-content">';
+        echo '<h3 class="institute-card-title">';
+        echo '<a href="' . get_permalink($staff_member->ID) . '">' . esc_html($staff_member->post_title) . '</a>';
+        echo '</h3>';
+        
+        if ($staff_id) {
+            echo '<p class="institute-card-id">';
+            echo '<strong>' . __('ID:', 'institute-management') . '</strong> ';
+            echo '<span>' . esc_html($staff_id) . '</span>';
+            echo '</p>';
+        }
+        
+        if ($position) {
+            echo '<p class="institute-card-position">';
+            echo '<strong>' . __('Position:', 'institute-management') . '</strong> ';
+            echo esc_html($position);
+            echo '</p>';
+        }
+        
+        if ($departments && !is_wp_error($departments)) {
+            echo '<p class="institute-card-department">';
+            echo '<strong>' . __('Department:', 'institute-management') . '</strong> ';
+            $dept_names = wp_list_pluck($departments, 'name');
+            echo esc_html(implode(', ', $dept_names));
+            echo '</p>';
+        }
+        
+        if ($phone) {
+            echo '<p class="institute-card-phone">';
+            echo '<strong>' . __('Phone:', 'institute-management') . '</strong> ';
+            echo '<a href="tel:' . esc_attr($phone) . '">' . esc_html($phone) . '</a>';
+            echo '</p>';
+        }
+        
+        if ($email) {
+            echo '<p class="institute-card-email">';
+            echo '<strong>' . __('Email:', 'institute-management') . '</strong> ';
+            echo '<a href="mailto:' . esc_attr($email) . '">' . esc_html($email) . '</a>';
+            echo '</p>';
+        }
+        
+        // View Profile Button
+        echo '<div class="institute-card-actions">';
+        echo '<a href="' . get_permalink($staff_member->ID) . '" class="institute-btn institute-btn-primary">';
+        echo __('View Profile', 'institute-management');
+        echo '</a>';
+        echo '</div>';
+        echo '</div>';
+        
+        echo '</article>';
+    }
+    
+    /**
+     * Handle staff role filter AJAX request
+     */
+    public function handle_staff_role_filter() {
+        // Don't check nonce for public access
+        // check_ajax_referer('institute_management_nonce', 'nonce');
+        
+        $role = sanitize_text_field($_POST['role'] ?? '');
+        $department = sanitize_text_field($_POST['department'] ?? '');
+        $status = sanitize_text_field($_POST['status'] ?? '');
+        $search = sanitize_text_field($_POST['search'] ?? '');
+        
+        // Build query args
+        $args = array(
+            'post_type' => 'staff',
+            'posts_per_page' => -1,
+            'post_status' => 'publish',
+            'orderby' => 'title',
+            'order' => 'ASC'
+        );
+        
+        // Add search query
+        if (!empty($search)) {
+            $args['s'] = $search;
+            
+            // Also search in meta fields
+            $args['meta_query'] = array(
+                'relation' => 'OR',
+                array(
+                    'key' => '_staff_id',
+                    'value' => $search,
+                    'compare' => 'LIKE'
+                ),
+                array(
+                    'key' => '_staff_phone',
+                    'value' => $search,
+                    'compare' => 'LIKE'
+                ),
+                array(
+                    'key' => '_staff_position',
+                    'value' => $search,
+                    'compare' => 'LIKE'
+                )
+            );
+        }
+
+        $meta_query = array('relation' => 'AND');
+        $tax_query = array('relation' => 'AND');
+        
+        // Filter by role (required for this specific filter)
+        if (!empty($role)) {
+            $tax_query[] = array(
+                'taxonomy' => 'staff_role',
+                'field' => 'slug',
+                'terms' => $role
+            );
+        }
+        
+        // Filter by department
+        if (!empty($department)) {
+            $tax_query[] = array(
+                'taxonomy' => 'staff_department',
+                'field' => 'slug',
+                'terms' => $department
+            );
+        }
+        
+        // Filter by status
+        if (!empty($status)) {
+            $meta_query[] = array(
+                'key' => '_staff_status',
+                'value' => $status,
+                'compare' => '='
+            );
+        }
+        
+        // Combine meta queries if we have both search and status
+        if (!empty($search) && !empty($status)) {
+            $args['meta_query'] = array(
+                'relation' => 'AND',
+                array(
+                    'relation' => 'OR',
+                    array(
+                        'key' => '_staff_id',
+                        'value' => $search,
+                        'compare' => 'LIKE'
+                    ),
+                    array(
+                        'key' => '_staff_phone',
+                        'value' => $search,
+                        'compare' => 'LIKE'
+                    ),
+                    array(
+                        'key' => '_staff_position',
+                        'value' => $search,
+                        'compare' => 'LIKE'
+                    )
+                ),
+                array(
+                    'key' => '_staff_status',
+                    'value' => $status,
+                    'compare' => '='
+                )
+            );
+        } elseif (!empty($meta_query) && count($meta_query) > 1) {
+            $args['meta_query'] = $meta_query;
+        }
+
+        if (!empty($tax_query) && count($tax_query) > 1) {
+            $args['tax_query'] = $tax_query;
+        } elseif (!empty($tax_query) && count($tax_query) == 2) {
+            $args['tax_query'] = $tax_query;
+        }
+        
+        $staff = get_posts($args);
+        
+        ob_start();
+        
+        // Render results in both table and grid format
+        echo '<div class="institute-staff-table">';
+        echo '<div class="institute-table-wrapper">';
+        echo '<table class="institute-data-table staff-data-table">';
+        echo '<thead>';
+        echo '<tr>';
+        echo '<th class="institute-th-serial">' . __('S.No', 'institute-management') . '</th>';
+        echo '<th class="institute-th-photo">' . __('Image', 'institute-management') . '</th>';
+        echo '<th class="institute-th-name">' . __('Name', 'institute-management') . '</th>';
+        echo '<th class="institute-th-mobile">' . __('Mobile Number', 'institute-management') . '</th>';
+        echo '<th class="institute-th-designation">' . __('Designation', 'institute-management') . '</th>';
+        echo '<th class="institute-th-department">' . __('Department', 'institute-management') . '</th>';
+        echo '<th class="institute-th-status">' . __('Status', 'institute-management') . '</th>';
+        echo '<th class="institute-th-actions">' . __('Actions', 'institute-management') . '</th>';
+        echo '</tr>';
+        echo '</thead>';
+        echo '<tbody>';
+        
+        if (!empty($staff)) {
+            $serial = 1;
+            foreach ($staff as $staff_member) {
+                $this->render_staff_table_row($staff_member, $serial++);
+            }
+        } else {
+            echo '<tr><td colspan="8" style="text-align: center; padding: 20px;">';
+            echo __('No staff members found matching your criteria.', 'institute-management');
+            echo '</td></tr>';
+        }
+        
+        echo '</tbody>';
+        echo '</table>';
+        echo '</div>';
+        echo '</div>';
+        
+        // Grid view (hidden by default)
+        echo '<div class="institute-staff-grid institute-grid institute-columns-3" style="display: none;">';
+        
+        if (!empty($staff)) {
+            foreach ($staff as $staff_member) {
+                $this->render_staff_grid_card($staff_member);
+            }
+        } else {
+            echo '<div class="institute-no-results">';
+            echo '<p>' . __('No staff members found matching your criteria.', 'institute-management') . '</p>';
+            echo '</div>';
+        }
+        
+        echo '</div>';
+        
+        $html = ob_get_clean();
+        
+        wp_send_json_success($html);
     }
 } 

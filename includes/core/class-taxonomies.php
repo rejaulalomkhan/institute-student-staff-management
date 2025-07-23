@@ -175,28 +175,192 @@ class Taxonomies {
             'singular_name'     => __('Staff Role', 'institute-management'),
             'search_items'      => __('Search Staff Roles', 'institute-management'),
             'all_items'         => __('All Staff Roles', 'institute-management'),
+            'parent_item'       => __('Parent Staff Role', 'institute-management'),
+            'parent_item_colon' => __('Parent Staff Role:', 'institute-management'),
             'edit_item'         => __('Edit Staff Role', 'institute-management'),
             'update_item'       => __('Update Staff Role', 'institute-management'),
             'add_new_item'      => __('Add New Staff Role', 'institute-management'),
             'new_item_name'     => __('New Staff Role Name', 'institute-management'),
             'menu_name'         => __('Staff Roles', 'institute-management'),
+            'back_to_items'     => __('Back to Staff Roles', 'institute-management'),
         );
         
         $args = array(
-            'hierarchical'      => false,
+            'hierarchical'      => true,  // Changed to true for category-like behavior
             'labels'            => $labels,
             'show_ui'           => true,
             'show_admin_column' => true,
             'query_var'         => true,
             'public'            => true,
-            'show_in_nav_menus' => false,
+            'show_in_nav_menus' => true,
             'show_tagcloud'     => false,
-            'rewrite'           => array('slug' => 'staff-role'),
+            'rewrite'           => false, // We'll handle rewrite rules manually
             'show_in_rest'      => true,
             'rest_base'         => 'staff-roles',
+            'capabilities'      => array(
+                'manage_terms' => 'manage_categories',
+                'edit_terms'   => 'manage_categories',
+                'delete_terms' => 'manage_categories',
+                'assign_terms' => 'edit_posts',
+            ),
         );
         
         register_taxonomy('staff_role', array('staff'), $args);
+        
+        // Create default staff roles
+        add_action('init', array($this, 'create_default_staff_roles'), 20);
+        
+        // Add custom rewrite rules for short URLs
+        add_action('init', array($this, 'add_staff_role_rewrite_rules'), 21);
+        
+        // Modify query for custom staff role URLs
+        add_action('pre_get_posts', array($this, 'modify_staff_role_query'));
+        
+        // Filter term links for staff roles
+        add_filter('term_link', array($this, 'filter_staff_role_term_link'), 10, 3);
+        
+        // Admin area specific filters
+        if (is_admin()) {
+            add_filter('get_edit_term_link', array($this, 'admin_term_view_link'), 10, 4);
+        }
+    }
+    
+    /**
+     * Create default staff roles
+     */
+    public function create_default_staff_roles() {
+        // Only create if no terms exist yet
+        $existing_terms = get_terms(array(
+            'taxonomy' => 'staff_role',
+            'hide_empty' => false,
+            'count' => true
+        ));
+        
+        if (empty($existing_terms)) {
+            $default_roles = array(
+                array(
+                    'name' => 'শিক্ষক মণ্ডলী',
+                    'slug' => 'teachers',
+                    'description' => 'প্রতিষ্ঠানের সকল শিক্ষক ও শিক্ষিকা'
+                ),
+                array(
+                    'name' => 'অফিস স্টাফ',
+                    'slug' => 'office-staff',
+                    'description' => 'অফিসিয়াল কাজকর্মে নিয়োজিত কর্মচারী'
+                ),
+                array(
+                    'name' => 'কমিটি বৃন্দ',
+                    'slug' => 'committee',
+                    'description' => 'প্রতিষ্ঠানের পরিচালনা কমিটির সদস্যবৃন্দ'
+                ),
+                array(
+                    'name' => 'প্রশাসনিক কর্মকর্তা',
+                    'slug' => 'administration',
+                    'description' => 'প্রশাসনিক দায়িত্বে নিয়োজিত কর্মকর্তাগণ'
+                ),
+                array(
+                    'name' => 'সহায়ক কর্মী',
+                    'slug' => 'support-staff',
+                    'description' => 'প্রতিষ্ঠানের সহায়ক কর্মী ও সেবা প্রদানকারী'
+                )
+            );
+            
+            foreach ($default_roles as $role) {
+                if (!term_exists($role['slug'], 'staff_role')) {
+                    wp_insert_term(
+                        $role['name'],
+                        'staff_role',
+                        array(
+                            'slug' => $role['slug'],
+                            'description' => $role['description']
+                        )
+                    );
+                }
+            }
+        }
+    }
+    
+    /**
+     * Add custom rewrite rules for staff roles
+     */
+    public function add_staff_role_rewrite_rules() {
+        // Define the staff role slugs and their rewrite rules
+        $staff_roles = array('teachers', 'office-staff', 'committee', 'administration', 'support-staff');
+        
+        foreach ($staff_roles as $role_slug) {
+            // Add rewrite rule for each role
+            add_rewrite_rule(
+                '^' . $role_slug . '/?$',
+                'index.php?staff_role=' . $role_slug,
+                'top'
+            );
+            
+            // Add pagination support
+            add_rewrite_rule(
+                '^' . $role_slug . '/page/([0-9]{1,})/?$',
+                'index.php?staff_role=' . $role_slug . '&paged=$matches[1]',
+                'top'
+            );
+        }
+    }
+    
+    /**
+     * Modify query for staff role pages
+     */
+    public function modify_staff_role_query($query) {
+        if (!is_admin() && $query->is_main_query()) {
+            $staff_role = get_query_var('staff_role');
+            if ($staff_role) {
+                $query->set('post_type', 'staff');
+                $query->set('tax_query', array(
+                    array(
+                        'taxonomy' => 'staff_role',
+                        'field' => 'slug',
+                        'terms' => $staff_role
+                    )
+                ));
+                // Prevent 404
+                $query->is_home = false;
+                $query->is_404 = false;
+            }
+        }
+    }
+    
+    /**
+     * Filter term links for staff roles to use short URLs
+     */
+    public function filter_staff_role_term_link($termlink, $term, $taxonomy) {
+        if ($taxonomy === 'staff_role') {
+            // Map of term slugs to short URLs
+            $role_urls = array(
+                'teachers' => home_url('/teachers/'),
+                'office-staff' => home_url('/office-staff/'),
+                'committee' => home_url('/committee/'),
+                'administration' => home_url('/administration/'),
+                'support-staff' => home_url('/support-staff/')
+            );
+            
+            // If this term has a custom URL, use it
+            if (isset($role_urls[$term->slug])) {
+                return $role_urls[$term->slug];
+            }
+        }
+        
+        return $termlink;
+    }
+    
+    /**
+     * Filter admin term view links
+     */
+    public function admin_term_view_link($location, $term_id, $taxonomy, $object_type) {
+        if ($taxonomy === 'staff_role') {
+            $term = get_term($term_id, $taxonomy);
+            if ($term && !is_wp_error($term)) {
+                // Use our custom term link function
+                return $this->filter_staff_role_term_link('', $term, $taxonomy);
+            }
+        }
+        return $location;
     }
     
     /**
