@@ -104,19 +104,25 @@ $institute_name = $settings['institute_name'] ?? get_bloginfo('name');
                         $father_name = get_post_meta(get_the_ID(), '_father_name', true);
                         $mother_name = get_post_meta(get_the_ID(), '_mother_name', true);
                         
-                        // Get privacy settings
-                        $settings = get_option('institute_management_settings', array());
-                        $public_fields = $settings['public_fields'] ?? array();
-                        $show_privacy_notice = $settings['show_privacy_notice'] ?? true;
-                        $is_logged_in = is_user_logged_in();
-                        
-                        // Helper function to check if field should be shown
-                        function should_show_field($field_name, $public_fields, $is_logged_in) {
-                            return $is_logged_in || in_array($field_name, $public_fields);
+                        // Debug information for admin (add ?debug_fields=1 to URL)
+                        if (current_user_can('manage_options') && isset($_GET['debug_fields'])) {
+                            echo '<div style="background: #fff3cd; border: 1px solid #ffc107; padding: 1rem; margin: 1rem 0; border-radius: 8px;">';
+                            echo '<strong>Field Debug Info:</strong><br>';
+                            echo 'Phone: ' . ($phone ? $phone : 'EMPTY') . '<br>';
+                            echo 'Email: ' . ($email ? $email : 'EMPTY') . '<br>';
+                            echo 'DOB: ' . ($dob ? $dob : 'EMPTY') . '<br>';
+                            echo 'Gender: ' . ($gender ? $gender : 'EMPTY') . '<br>';
+                            echo 'Address: ' . ($address ? $address : 'EMPTY') . '<br>';
+                            echo 'Blood Group: ' . ($blood_group ? $blood_group : 'EMPTY') . '<br>';
+                            echo 'Religion: ' . ($religion ? $religion : 'EMPTY') . '<br>';
+                            echo 'Nationality: ' . ($nationality ? $nationality : 'EMPTY') . '<br>';
+                            echo 'Father Name: ' . ($father_name ? $father_name : 'EMPTY') . '<br>';
+                            echo 'Mother Name: ' . ($mother_name ? $mother_name : 'EMPTY') . '<br>';
+                            echo '</div>';
                         }
                         ?>
                         
-                        <?php if ($phone && should_show_field('phone', $public_fields, $is_logged_in)): ?>
+                        <?php if ($phone): ?>
                             <div class="institute-detail-item">
                                 <span class="institute-detail-icon dashicons dashicons-phone"></span>
                                 <div class="institute-detail-content">
@@ -130,7 +136,7 @@ $institute_name = $settings['institute_name'] ?? get_bloginfo('name');
                             </div>
                         <?php endif; ?>
                         
-                        <?php if ($email && should_show_field('email', $public_fields, $is_logged_in)): ?>
+                        <?php if ($email): ?>
                             <div class="institute-detail-item">
                                 <span class="institute-detail-icon dashicons dashicons-email"></span>
                                 <div class="institute-detail-content">
@@ -144,7 +150,7 @@ $institute_name = $settings['institute_name'] ?? get_bloginfo('name');
                             </div>
                         <?php endif; ?>
                         
-                        <?php if ($dob && should_show_field('dob', $public_fields, $is_logged_in)): ?>
+                        <?php if ($dob): ?>
                             <div class="institute-detail-item">
                                 <span class="institute-detail-icon dashicons dashicons-calendar-alt"></span>
                                 <div class="institute-detail-content">
@@ -154,7 +160,7 @@ $institute_name = $settings['institute_name'] ?? get_bloginfo('name');
                             </div>
                         <?php endif; ?>
                         
-                        <?php if ($gender && should_show_field('gender', $public_fields, $is_logged_in)): ?>
+                        <?php if ($gender): ?>
                             <div class="institute-detail-item">
                                 <span class="institute-detail-icon dashicons dashicons-admin-users"></span>
                                 <div class="institute-detail-content">
@@ -164,7 +170,7 @@ $institute_name = $settings['institute_name'] ?? get_bloginfo('name');
                             </div>
                         <?php endif; ?>
                         
-                        <?php if ($address && should_show_field('address', $public_fields, $is_logged_in)): ?>
+                        <?php if ($address): ?>
                             <div class="institute-detail-item">
                                 <span class="institute-detail-icon dashicons dashicons-location"></span>
                                 <div class="institute-detail-content">
@@ -174,7 +180,7 @@ $institute_name = $settings['institute_name'] ?? get_bloginfo('name');
                             </div>
                         <?php endif; ?>
                         
-                        <?php if ($blood_group && should_show_field('blood_group', $public_fields, $is_logged_in)): ?>
+                        <?php if ($blood_group): ?>
                             <div class="institute-detail-item">
                                 <span class="institute-detail-icon dashicons dashicons-heart"></span>
                                 <div class="institute-detail-content">
@@ -184,7 +190,7 @@ $institute_name = $settings['institute_name'] ?? get_bloginfo('name');
                             </div>
                         <?php endif; ?>
                         
-                        <?php if ($religion && should_show_field('religion', $public_fields, $is_logged_in)): ?>
+                        <?php if ($religion): ?>
                             <div class="institute-detail-item">
                                 <span class="institute-detail-icon dashicons dashicons-admin-site"></span>
                                 <div class="institute-detail-content">
@@ -194,7 +200,7 @@ $institute_name = $settings['institute_name'] ?? get_bloginfo('name');
                             </div>
                         <?php endif; ?>
                         
-                        <?php if ($nationality && should_show_field('nationality', $public_fields, $is_logged_in)): ?>
+                        <?php if ($nationality): ?>
                             <div class="institute-detail-item">
                                 <span class="institute-detail-icon dashicons dashicons-admin-site-alt3"></span>
                                 <div class="institute-detail-content">
@@ -202,52 +208,28 @@ $institute_name = $settings['institute_name'] ?? get_bloginfo('name');
                                     <span class="institute-detail-value"><?php echo esc_html($nationality); ?></span>
                                 </div>
                             </div>
-                        <?php endif; ?>                       
-                                                
-                        <?php 
-                        // Check if any personal information is visible
-                        $visible_fields = array();
-                        $all_fields = array(
-                            'phone' => $phone, 'email' => $email, 'dob' => $dob, 'gender' => $gender, 
-                            'address' => $address, 'blood_group' => $blood_group, 'religion' => $religion, 
-                            'nationality' => $nationality, 'father_name' => $father_name, 'mother_name' => $mother_name
-                        );
+                        <?php endif; ?>
                         
-                        foreach ($all_fields as $field_name => $field_value) {
-                            if ($field_value && should_show_field($field_name, $public_fields, $is_logged_in)) {
-                                $visible_fields[] = $field_name;
-                            }
-                        }
-                        
-                        // Show privacy notice if not logged in and some fields are hidden
-                        if (!$is_logged_in && $show_privacy_notice && !empty($all_fields) && count($visible_fields) < count(array_filter($all_fields))): ?>
-                            <div class="institute-privacy-notice">
-                                <div class="institute-privacy-icon">
-                                    <span class="dashicons dashicons-lock"></span>
+                        <?php if ($father_name): ?>
+                            <div class="institute-detail-item">
+                                <span class="institute-detail-icon dashicons dashicons-admin-users"></span>
+                                <div class="institute-detail-content">
+                                    <span class="institute-detail-label"><?php _e('Father\'s Name:', 'institute-management'); ?></span>
+                                    <span class="institute-detail-value"><?php echo esc_html($father_name); ?></span>
                                 </div>
-                                <p><?php _e('Some personal information is only visible to logged-in users for privacy protection.', 'institute-management'); ?></p>
-                                <p><a href="<?php echo wp_login_url(get_permalink()); ?>" class="institute-login-link"><?php _e('Login to view complete profile', 'institute-management'); ?></a></p>
                             </div>
                         <?php endif; ?>
                         
-                        <?php 
-                        // Show a message if no personal information is available or visible
-                        if (empty($visible_fields)): ?>
-                            <div class="institute-no-personal-info">
-                                <div class="institute-no-info-icon">
-                                    <span class="dashicons dashicons-info"></span>
+                        <?php if ($mother_name): ?>
+                            <div class="institute-detail-item">
+                                <span class="institute-detail-icon dashicons dashicons-admin-users"></span>
+                                <div class="institute-detail-content">
+                                    <span class="institute-detail-label"><?php _e('Mother\'s Name:', 'institute-management'); ?></span>
+                                    <span class="institute-detail-value"><?php echo esc_html($mother_name); ?></span>
                                 </div>
-                                <?php if (!$is_logged_in && !empty(array_filter($all_fields))): ?>
-                                    <p><?php _e('Personal information is protected. Please log in to view details.', 'institute-management'); ?></p>
-                                    <p><a href="<?php echo wp_login_url(get_permalink()); ?>" class="institute-login-link"><?php _e('Login to view profile', 'institute-management'); ?></a></p>
-                                <?php else: ?>
-                                    <p><?php _e('No personal information available for this student.', 'institute-management'); ?></p>
-                                    <?php if (current_user_can('edit_posts')): ?>
-                                        <p><a href="<?php echo get_edit_post_link(); ?>" class="institute-edit-link"><?php _e('Add personal information', 'institute-management'); ?></a></p>
-                                    <?php endif; ?>
-                                <?php endif; ?>
                             </div>
                         <?php endif; ?>
+
                     </div>
                 </div>
                 
@@ -258,7 +240,7 @@ $institute_name = $settings['institute_name'] ?? get_bloginfo('name');
                 $guardian_email = get_post_meta(get_the_ID(), '_guardian_email', true);
                 $guardian_relation = get_post_meta(get_the_ID(), '_guardian_relation', true);
                 
-                if ($guardian_name || $guardian_phone || $guardian_email):
+                // Always show Guardian section, with message if empty
                 ?>
                 <div class="institute-details-section">
                     <h3 class="institute-section-title">
@@ -267,6 +249,7 @@ $institute_name = $settings['institute_name'] ?? get_bloginfo('name');
                     </h3>
                     
                     <div class="institute-details-card">
+                        <?php if ($guardian_name || $guardian_phone || $guardian_email): ?>
                         <?php if ($guardian_name): ?>
                             <div class="institute-detail-item">
                                 <span class="institute-detail-icon dashicons dashicons-admin-users"></span>
@@ -276,59 +259,7 @@ $institute_name = $settings['institute_name'] ?? get_bloginfo('name');
                                 </div>
                             </div>
                         <?php endif; ?>
-                        <?php if ($father_name && should_show_field('father_name', $public_fields, $is_logged_in)): ?>
-                            <div class="institute-detail-item">
-                                <span class="institute-detail-icon dashicons dashicons-admin-users"></span>
-                                <div class="institute-detail-content">
-                                    <span class="institute-detail-label"><?php _e('Father\'s Name:', 'institute-management'); ?></span>
-                                    <span class="institute-detail-value"><?php echo esc_html($father_name); ?></span>
-                                </div>
-                            </div>
-                        <?php endif; ?>
-                        
-                        <?php if ($mother_name && should_show_field('mother_name', $public_fields, $is_logged_in)): ?>
-                            <div class="institute-detail-item">
-                                <span class="institute-detail-icon dashicons dashicons-admin-users"></span>
-                                <div class="institute-detail-content">
-                                    <span class="institute-detail-label"><?php _e('Mother\'s Name:', 'institute-management'); ?></span>
-                                    <span class="institute-detail-value"><?php echo esc_html($mother_name); ?></span>
-                                </div>
-                            </div>
-                        <?php endif; ?>
 
-                        <?php if ($religion && should_show_field('religion', $public_fields, $is_logged_in)): ?>
-                            <div class="institute-detail-item">
-                                <span class="institute-detail-icon dashicons dashicons-admin-site"></span>
-                                <div class="institute-detail-content">
-                                    <span class="institute-detail-label"><?php _e('Religion:', 'institute-management'); ?></span>
-                                    <span class="institute-detail-value"><?php echo esc_html($religion); ?></span>
-                                </div>
-                            </div>
-                        <?php endif; ?>
-
-                        <?php if ($phone && should_show_field('phone', $public_fields, $is_logged_in)): ?>
-                            <div class="institute-detail-item">
-                                <span class="institute-detail-icon dashicons dashicons-phone"></span>
-                                <div class="institute-detail-content">
-                                    <span class="institute-detail-label"><?php _e('Phone:', 'institute-management'); ?></span>
-                                    <span class="institute-detail-value">
-                                        <a href="tel:<?php echo esc_attr($phone); ?>" class="institute-phone-link">
-                                            <?php echo esc_html($phone); ?>
-                                        </a>
-                                    </span>
-                                </div>
-                            </div>
-                        <?php endif; ?>
-
-                        <?php if ($address && should_show_field('address', $public_fields, $is_logged_in)): ?>
-                            <div class="institute-detail-item">
-                                <span class="institute-detail-icon dashicons dashicons-location"></span>
-                                <div class="institute-detail-content">
-                                    <span class="institute-detail-label"><?php _e('Address:', 'institute-management'); ?></span>
-                                    <span class="institute-detail-value"><?php echo esc_html($address); ?></span>
-                                </div>
-                            </div>
-                        <?php endif; ?>
                         
                         <?php if ($guardian_relation): ?>
                             <div class="institute-detail-item">
@@ -367,9 +298,20 @@ $institute_name = $settings['institute_name'] ?? get_bloginfo('name');
                                 </div>
                             </div>
                         <?php endif; ?>
+                        
+                        <?php else: ?>
+                            <div class="institute-no-guardian-info">
+                                <div class="institute-no-info-icon">
+                                    <span class="dashicons dashicons-info"></span>
+                                </div>
+                                <p><?php _e('No guardian information available.', 'institute-management'); ?></p>
+                                <?php if (current_user_can('edit_posts')): ?>
+                                    <p><a href="<?php echo get_edit_post_link(); ?>" class="institute-edit-link"><?php _e('Add guardian information', 'institute-management'); ?></a></p>
+                                <?php endif; ?>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
-                <?php endif; ?>
                 
                 <!-- Academic Information -->
                 <div class="institute-details-section">
